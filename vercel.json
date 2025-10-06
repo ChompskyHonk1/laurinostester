@@ -4,15 +4,15 @@
   "framework": "nextjs",
   "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@stripe_publishable_key",
-    "STRIPE_SECRET_KEY": "@stripe_secret_key",
-    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
-    "EMAIL_SERVICE_USER": "@email_service_user",
-    "EMAIL_SERVICE_PASS": "@email_service_pass",
-    "FIRECRAWL_API_KEY": "@firecrawl_api_key",
-    "GOOGLE_PLACE_ID": "@google_place_id",
-    "DEFAULT_THRESHOLD": "@default_threshold",
-    "RATING_CACHE_TTL": "@rating_cache_ttl"
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_placeholder_key_for_testing",
+    "STRIPE_SECRET_KEY": "sk_test_placeholder_key_for_testing",
+    "STRIPE_WEBHOOK_SECRET": "whsec_placeholder_webhook_secret_for_testing",
+    "EMAIL_SERVICE_USER": "placeholder_email_user",
+    "EMAIL_SERVICE_PASS": "placeholder_email_pass",
+    "FIRECRAWL_API_KEY": "fc_placeholder_firecrawl_key_for_testing",
+    "GOOGLE_PLACE_ID": "ChIJY8f8hB9244kRnB5Q2QvJ5QI",
+    "DEFAULT_THRESHOLD": "4.3",
+    "RATING_CACHE_TTL": "172800"
   },
   "functions": {
     "src/app/api/**/*.js": {
