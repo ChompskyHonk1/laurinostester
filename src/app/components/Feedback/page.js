@@ -14,6 +14,7 @@ export default function FeedbackPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showGoogleReview, setShowGoogleReview] = useState(false);
+  const [showStarburst, setShowStarburst] = useState(false);
 
   const calculateAverageRating = () => {
     const total = foodRating + atmosphereRating + serviceRating;
@@ -24,6 +25,7 @@ export default function FeedbackPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setShowStarburst(true);
 
     const averageRating = calculateAverageRating();
     const feedbackData = {
@@ -43,7 +45,11 @@ export default function FeedbackPage() {
       // Send email notification
       await sendEmailNotification(feedbackData);
       
-      setShowSuccess(true);
+      // Hide starburst after animation completes
+      setTimeout(() => {
+        setShowStarburst(false);
+        setShowSuccess(true);
+      }, 1500);
       
       // Show Google review option if rating is 4.3 or higher
        if (averageRating >= 4.3) {
@@ -142,6 +148,25 @@ export default function FeedbackPage() {
     
     // Hide the Google review prompt after redirecting
     setShowGoogleReview(false);
+  };
+
+  const StarburstAnimation = () => {
+    return (
+      <StarburstContainer>
+        {[0, 1, 2, 3, 4].map((index) => (
+          <StarburstStar key={index} $index={index} $delay={index * 0.1}>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+              <path d="M12 2C9.8 2 7.9 3.2 6.8 5C5.7 6.8 5.2 9.1 5.7 11.3C6.2 13.5 7.5 15.4 9.3 16.6C11.1 17.8 13.2 18.3 15.3 17.9C17.4 17.5 19.2 16.2 20.3 14.4C21.4 12.6 21.8 10.4 21.2 8.3C20.6 6.2 19.2 4.4 17.3 3.4C15.7 2.5 13.9 2 12 2Z"/>
+              <path d="M12 4C13.5 4 14.9 4.6 16 5.5C17.1 6.4 17.8 7.7 18 9.1C18.2 10.5 17.9 11.9 17.1 13.1C16.3 14.3 15.1 15.2 13.7 15.6C12.3 16 10.8 15.9 9.5 15.3C8.2 14.7 7.2 13.7 6.6 12.4C6 11.1 5.9 9.6 6.3 8.2C6.7 6.8 7.6 5.6 8.8 4.8C9.8 4.2 10.9 3.9 12 4Z"/>
+              <path d="M12 6C10.9 6 9.9 6.4 9.2 7.1C8.5 7.8 8.1 8.8 8.1 9.9C8.1 11 8.5 12 9.2 12.7C9.9 13.4 10.9 13.8 12 13.8C13.1 13.8 14.1 13.4 14.8 12.7C15.5 12 15.9 11 15.9 9.9C15.9 8.8 15.5 7.8 14.8 7.1C14.1 6.4 13.1 6 12 6Z"/>
+              <path d="M12 8.5C11.4 8.5 10.9 8.8 10.6 9.2C10.3 9.6 10.2 10.1 10.3 10.6C10.4 11.1 10.7 11.5 11.1 11.7C11.5 11.9 12 12 12.4 11.9C12.8 11.8 13.2 11.5 13.4 11.1C13.6 10.7 13.7 10.2 13.6 9.8C13.5 9.4 13.2 9 12.8 8.8C12.6 8.6 12.3 8.5 12 8.5Z"/>
+              <path d="M8 16L8 20C8 20.6 8.4 21 9 21L15 21C15.6 21 16 20.6 16 20L16 16C16 15.4 15.6 15 15 15L9 15C8.4 15 8 15.4 8 16Z"/>
+              <circle cx="12" cy="9" r="0.8" fill="currentColor" opacity="0.8"/>
+            </svg>
+          </StarburstStar>
+        ))}
+      </StarburstContainer>
+    );
   };
 
   const SeashellRating = ({ rating, setRating, label }) => {
@@ -322,6 +347,8 @@ export default function FeedbackPage() {
           </SubmitButton>
         </FeedbackForm>
 
+        {showStarburst && <StarburstAnimation />}
+        
         {showSuccess && (
           <SuccessMessage>
             <SuccessIcon>
@@ -755,27 +782,7 @@ const SeashellButton = styled.button`
   }
 `;
 
-const HalfShellButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  transition: all 0.3s ease;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  width: 50%;
-  overflow: hidden;
-  
-  &:hover {
-    transform: scale(1.05);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
-`;
+
 
 const SeashellIcon = styled.div`
   color: ${({ $filled, theme }) => $filled ? theme.colors.tertiaryDark : theme.colors.lighterBlue};
@@ -830,21 +837,7 @@ const SummaryText = styled.div`
 
 
 
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 8px;
-  background: ${({ theme }) => theme.colors.lighterBlue};
-  border-radius: 4px;
-  overflow: hidden;
-`;
 
-const ProgressFill = styled.div`
-  height: 100%;
-  background: linear-gradient(90deg, ${({ theme }) => theme.colors.tertiaryDark}, ${({ theme }) => theme.colors.bluePastel});
-  border-radius: 4px;
-  transition: width 0.5s ease;
-  width: ${({ percentage }) => percentage}%;
-`;
 
 const SubmitButton = styled.button`
   width: 100%;
@@ -1129,28 +1122,7 @@ const TotalSeashell = styled.div`
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 `;
 
-const TotalHalfShell = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 50%;
-  height: 100%;
-  overflow: hidden;
-  color: ${({ $filled, theme }) => $filled ? theme.colors.tertiaryDark : theme.colors.lighterBlue};
-  opacity: ${({ $filled }) => $filled ? 1 : 0.4};
-  transition: all 0.3s ease;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200%;
-    height: 100%;
-    background: ${({ $filled, theme }) => $filled ? theme.colors.tertiaryDark : theme.colors.lighterBlue};
-    opacity: ${({ $filled }) => $filled ? 1 : 0.4};
-  }
-`;
+
 
 const TotalRatingValue = styled.div`
   font-weight: 700;
@@ -1161,4 +1133,111 @@ const TotalRatingValue = styled.div`
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
   min-width: 80px;
+`;
+
+// Starburst Animation Styled Components
+const StarburstContainer = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  pointer-events: none;
+  z-index: 9999;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    width: 280px;
+    height: 280px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 260px;
+    height: 260px;
+  }
+`;
+
+const StarburstStar = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: ${({ theme }) => theme.colors.tertiaryDark};
+  animation: starburst-burst 1.5s ease-out forwards;
+  animation-delay: ${({ $delay }) => $delay}s;
+  opacity: 0;
+  
+  /* Calculate different angles for each star to create burst effect */
+  ${({ $index }) => {
+    const angle = ($index * 72); // 360 / 5 stars = 72 degrees apart
+    const distance = 120; // Distance from center
+    const x = Math.cos(angle * Math.PI / 180) * distance;
+    const y = Math.sin(angle * Math.PI / 180) * distance;
+    
+    return `
+      --end-x: ${x}px;
+      --end-y: ${y}px;
+    `;
+  }}
+  
+  @keyframes starburst-burst {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    }
+    20% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
+    }
+    40% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(0.9) rotate(180deg);
+    }
+    60% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.1) rotate(270deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--end-x)), calc(-50% + var(--end-y))) scale(0.3) rotate(360deg);
+    }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    ${({ $index }) => {
+      const angle = ($index * 72);
+      const distance = 85; // Slightly smaller distance for mobile
+      const x = Math.cos(angle * Math.PI / 180) * distance;
+      const y = Math.sin(angle * Math.PI / 180) * distance;
+      
+      return `
+        --end-x: ${x}px;
+        --end-y: ${y}px;
+      `;
+    }}
+    
+    svg {
+      width: 36px;
+      height: 36px;
+    }
+  }
+  
+  @media (max-width: 380px) {
+    ${({ $index }) => {
+      const angle = ($index * 72);
+      const distance = 75; // Even smaller distance for very small screens
+      const x = Math.cos(angle * Math.PI / 180) * distance;
+      const y = Math.sin(angle * Math.PI / 180) * distance;
+      
+      return `
+        --end-x: ${x}px;
+        --end-y: ${y}px;
+      `;
+    }}
+    
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
 `;
