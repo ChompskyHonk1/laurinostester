@@ -351,6 +351,9 @@ export default function Header() {
           
           {/* Desktop-only links */}
           <div className="desktop-links">
+            <Link href="/" className="nav-link">
+              Home
+            </Link>
             <Link href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="nav-link">
               Order
             </Link>
@@ -374,9 +377,7 @@ export default function Header() {
             <Link href="/components/laurinosstore/Store" className="nav-link">
               Laurino&apos;s Store
             </Link>
-            <Link href="/" className="nav-link">
-              Home
-            </Link>
+            
           </div>
           
           {/* Modern hamburger icon (mobile only) */}
@@ -406,6 +407,10 @@ export default function Header() {
             {/* Small white logo at the top of the menu */}
             <div className="menu-logo">Laurino&apos;s Tavern</div>
             
+            <Link href="/" className="nav-link" onClick={toggleMenu}>
+              <FontAwesomeIcon icon={faHome} className="menu-icon" />
+              Home
+            </Link>
             <Link href="/components/menu" className="nav-link" onClick={toggleMenu}>
               <FontAwesomeIcon icon={faBookOpen} className="menu-icon" />
               Menu
@@ -440,11 +445,7 @@ export default function Header() {
               <FontAwesomeIcon icon={faBeer} className="menu-icon" />
               Local Seltzer
             </Link>
-            <Link href="/" className="nav-link" onClick={toggleMenu}>
-              <FontAwesomeIcon icon={faHome} className="menu-icon" />
-              Home
-            </Link>
-          </div>
+            </div>
         </nav>
       </div>
     </HeaderContainer>

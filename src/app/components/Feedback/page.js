@@ -388,6 +388,11 @@ const FeedbackSection = styled.section`
     pointer-events: none;
     z-index: 0;
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    min-height: 100vh;
+    padding-bottom: 2rem; /* Extra padding for mobile */
+  }
 `;
 
 const FeedbackContainer = styled.div`
@@ -409,6 +414,10 @@ const ModernHeader = styled.header`
   position: relative;
   height: 320px;
   overflow: hidden;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    height: 240px; /* Reduced height for mobile */
+  }
 `;
 
 const HeaderBackground = styled.div`
@@ -469,13 +478,15 @@ const HeaderTitle = styled.h1`
   margin-bottom: 1rem;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   letter-spacing: -0.5px;
+  line-height: 1.1;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     font-size: 2.5rem;
   }
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    padding: 0 1rem;
   }
 `;
 
@@ -485,9 +496,12 @@ const HeaderSubtitle = styled.p`
   max-width: 600px;
   margin: 0 auto;
   font-weight: 300;
+  line-height: 1.4;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    padding: 0 1rem;
+    max-width: 90%;
   }
 `;
 
@@ -500,7 +514,7 @@ const FeedbackForm = styled.form`
   }
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
   }
 `;
 
@@ -509,6 +523,14 @@ const FormSection = styled.div`
   
   &:last-of-type {
     margin-bottom: 2rem;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    margin-bottom: 2rem;
+    
+    &:last-of-type {
+      margin-bottom: 1.5rem;
+    }
   }
 `;
 
@@ -519,6 +541,7 @@ const SectionTitle = styled.h3`
   color: ${({ theme }) => theme.colors.primaryDark};
   position: relative;
   padding-bottom: 0.5rem;
+  line-height: 1.2;
   
   &::after {
     content: '';
@@ -529,6 +552,11 @@ const SectionTitle = styled.h3`
     height: 3px;
     background: ${({ theme }) => theme.colors.tertiaryDark};
     border-radius: 2px;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 `;
 
@@ -556,6 +584,11 @@ const InputLabel = styled.label`
   color: ${({ theme }) => theme.colors.primaryDark};
   font-family: 'Aloja', sans-serif;
   font-size: 1.1rem;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const InputField = styled.input`
@@ -578,6 +611,12 @@ const InputField = styled.input`
   &::placeholder {
     color: ${({ theme }) => theme.colors.secondaryDark};
     opacity: 0.6;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0.875rem 1rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+    border-radius: 10px;
   }
 `;
 
@@ -604,6 +643,13 @@ const TextAreaField = styled.textarea`
   &::placeholder {
     color: ${({ theme }) => theme.colors.secondaryDark};
     opacity: 0.6;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0.875rem 1rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+    border-radius: 10px;
+    min-height: 120px;
   }
 `;
 
@@ -645,6 +691,17 @@ const RatingContainer = styled.div`
       transform: scaleX(1);
     }
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    
+    &:hover {
+      transform: translateY(-2px); /* Less dramatic on mobile */
+    }
+  }
 `;
 
 const RatingLabel = styled.div`
@@ -653,6 +710,12 @@ const RatingLabel = styled.div`
   font-family: 'Aloja', sans-serif;
   font-size: 1.2rem;
   min-width: 140px;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1.1rem;
+    min-width: auto;
+    width: 100%;
+  }
 `;
 
 const SeashellsContainer = styled.div`
@@ -666,6 +729,12 @@ const SeashellsContainer = styled.div`
   @keyframes bounce {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    gap: 0.15rem;
+    justify-content: center;
+    width: 100%;
   }
 `;
 
@@ -689,6 +758,14 @@ const SeashellButton = styled.button`
   
   &:active {
     transform: scale(0.95);
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0.4rem;
+    
+    &:hover {
+      transform: scale(1.1); /* Less dramatic on mobile for better UX */
+    }
   }
 `;
 
@@ -736,6 +813,12 @@ const RatingValue = styled.div`
   background: ${({ theme }) => theme.colors.bluePastel}20;
   padding: 0.5rem 1rem;
   border-radius: 8px;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1.1rem;
+    padding: 0.4rem 0.8rem;
+    align-self: center;
+  }
 `;
 
 const RatingSummary = styled.div`
@@ -744,6 +827,11 @@ const RatingSummary = styled.div`
   background: linear-gradient(135deg, ${({ theme }) => theme.colors.bluePastel}20, ${({ theme }) => theme.colors.lighterBlue}20);
   border-radius: 16px;
   border: 2px solid ${({ theme }) => theme.colors.lighterBlue};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    margin: 1.5rem 0 2rem;
+    padding: 1.25rem;
+  }
 `;
 
 const SummaryText = styled.div`
@@ -820,6 +908,17 @@ const SubmitButton = styled.button`
     cursor: not-allowed;
     transform: none;
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    min-height: 50px; /* Better touch target */
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px); /* Less dramatic on mobile */
+    }
+  }
 `;
 
 const SuccessMessage = styled.div`
@@ -865,6 +964,12 @@ const SuccessMessage = styled.div`
     70% { box-shadow: 0 0 0 20px rgba(76, 175, 80, 0); }
     100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    border-radius: 12px;
+  }
 `;
 
 const SuccessIcon = styled.div`
@@ -884,6 +989,10 @@ const SuccessTitle = styled.h3`
   margin: 1rem 0;
   position: relative;
   z-index: 1;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1.6rem;
+  }
 `;
 
 const SuccessText = styled.p`
@@ -891,6 +1000,11 @@ const SuccessText = styled.p`
   opacity: 0.95;
   position: relative;
   z-index: 1;
+  line-height: 1.4;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1rem;
+  }
 `;
 
 const GoogleReviewPrompt = styled.div`
@@ -930,6 +1044,12 @@ const GoogleReviewPrompt = styled.div`
       transform: translateY(0);
     }
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    border-radius: 12px;
+  }
 `;
 
 const PromptTitle = styled.h3`
@@ -938,6 +1058,10 @@ const PromptTitle = styled.h3`
   margin: 1rem 0;
   position: relative;
   z-index: 1;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1.6rem;
+  }
 `;
 
 const PromptText = styled.p`
@@ -946,6 +1070,12 @@ const PromptText = styled.p`
   opacity: 0.95;
   position: relative;
   z-index: 1;
+  line-height: 1.4;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const GoogleReviewButton = styled.button`
@@ -972,6 +1102,17 @@ const GoogleReviewButton = styled.button`
 
   &:active {
     transform: translateY(-1px);
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    min-height: 44px; /* Better touch target */
+    
+    &:hover {
+      transform: translateY(-2px); /* Less dramatic on mobile */
+    }
   }
 `;
 
