@@ -1,9 +1,16 @@
 import Stripe from 'stripe';
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(request) {
   try {
+    // Initialize Stripe inside the function
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Stripe not configured' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const body = await request.json();
     const { paymentIntentId, shippingOption, totalAmount, email } = body;
     

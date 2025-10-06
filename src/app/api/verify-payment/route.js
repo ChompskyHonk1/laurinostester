@@ -1,10 +1,16 @@
 import Stripe from 'stripe';
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 export async function GET(request) {
   try {
+    // Initialize Stripe inside the function
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Stripe not configured' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     // Extract payment_intent from URL parameters
     const url = new URL(request.url);
     const payment_intent_id = url.searchParams.get('payment_intent');
