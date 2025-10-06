@@ -155,40 +155,24 @@ export default function FeedbackPage() {
       setTimeout(() => setIsAnimating(false), 300);
     };
 
-    // Handle half-shell clicks
-    const handleHalfShellClick = (shellValue) => {
-      setIsAnimating(true);
-      setRating(shellValue);
-      setTimeout(() => setIsAnimating(false), 300);
-    };
-
     const renderSeashells = () => {
       const shells = [];
-      const maxRating = 5; // Always show 5 shells, but values can be half increments
+      const maxRating = 5; // 5-star system
       
       for (let i = 1; i <= maxRating; i++) {
         const isFilled = rating >= i;
-        const isHalfFilled = rating >= i - 0.5 && rating < i;
         
         shells.push(
           <SeashellWrapper key={i}>
-            <HalfShellButton
-              type="button"
-              onClick={() => handleHalfShellClick(i - 0.5)}
-              onMouseEnter={() => setHoverRating(i - 0.5)}
-              onMouseLeave={() => setHoverRating(0)}
-              $filled={rating >= i - 0.5}
-              title={`${i - 0.5} shells`}
-            />
             <SeashellButton
               type="button"
               onClick={() => handleSeashellClick(i)}
               onMouseEnter={() => setHoverRating(i)}
               onMouseLeave={() => setHoverRating(0)}
               $filled={isFilled}
-              title={`${i} shells`}
+              title={`${i} stars`}
             >
-              <SeashellIcon $filled={isFilled || isHalfFilled}>
+              <SeashellIcon $filled={isFilled}>
                 <svg viewBox="0 0 24 24" fill="currentColor" width="36" height="36">
                   <path d="M12 2C9.8 2 7.9 3.2 6.8 5C5.7 6.8 5.2 9.1 5.7 11.3C6.2 13.5 7.5 15.4 9.3 16.6C11.1 17.8 13.2 18.3 15.3 17.9C17.4 17.5 19.2 16.2 20.3 14.4C21.4 12.6 21.8 10.4 21.2 8.3C20.6 6.2 19.2 4.4 17.3 3.4C15.7 2.5 13.9 2 12 2Z"/>
                   <path d="M12 4C13.5 4 14.9 4.6 16 5.5C17.1 6.4 17.8 7.7 18 9.1C18.2 10.5 17.9 11.9 17.1 13.1C16.3 14.3 15.1 15.2 13.7 15.6C12.3 16 10.8 15.9 9.5 15.3C8.2 14.7 7.2 13.7 6.6 12.4C6 11.1 5.9 9.6 6.3 8.2C6.7 6.8 7.6 5.6 8.8 4.8C9.8 4.2 10.9 3.9 12 4Z"/>
@@ -212,7 +196,7 @@ export default function FeedbackPage() {
         <SeashellsContainer className={isAnimating ? "animating" : ""}>
           {renderSeashells()}
         </SeashellsContainer>
-        <RatingValue>{rating.toFixed(1)}</RatingValue>
+        <RatingValue>{rating.toFixed(0)}</RatingValue>
       </RatingContainer>
     );
   };
@@ -306,15 +290,11 @@ export default function FeedbackPage() {
                 {[1, 2, 3, 4, 5].map((i) => {
                   const averageRating = calculateAverageRating();
                   const isFilled = averageRating >= i;
-                  const isHalfFilled = averageRating >= i - 0.5 && averageRating < i;
                   
                   return (
                     <TotalSeashellWrapper key={i}>
-                      <TotalHalfShell
-                        $filled={averageRating >= i - 0.5}
-                      />
                       <TotalSeashell
-                        $filled={isFilled || isHalfFilled}
+                        $filled={isFilled}
                       >
                         <svg viewBox="0 0 24 24" fill="currentColor" width="40" height="40">
                           <path d="M12 2C9.8 2 7.9 3.2 6.8 5C5.7 6.8 5.2 9.1 5.7 11.3C6.2 13.5 7.5 15.4 9.3 16.6C11.1 17.8 13.2 18.3 15.3 17.9C17.4 17.5 19.2 16.2 20.3 14.4C21.4 12.6 21.8 10.4 21.2 8.3C20.6 6.2 19.2 4.4 17.3 3.4C15.7 2.5 13.9 2 12 2Z"/>
@@ -668,7 +648,7 @@ const RatingContainer = styled.div`
   border: 2px solid ${({ theme }) => theme.colors.lighterBlue};
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to visible */
   
   &::before {
     content: '';
@@ -694,9 +674,10 @@ const RatingContainer = styled.div`
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; /* Changed from flex-start to center */
     gap: 1rem;
     padding: 1.25rem;
+    min-width: 100%; /* Ensure full width */
     
     &:hover {
       transform: translateY(-2px); /* Less dramatic on mobile */
@@ -710,11 +691,13 @@ const RatingLabel = styled.div`
   font-family: 'Aloja', sans-serif;
   font-size: 1.2rem;
   min-width: 140px;
+  text-align: center;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
     font-size: 1.1rem;
     min-width: auto;
     width: 100%;
+    text-align: center;
   }
 `;
 
@@ -732,9 +715,11 @@ const SeashellsContainer = styled.div`
   }
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    gap: 0.15rem;
+    gap: 0.1rem;
     justify-content: center;
     width: 100%;
+    flex-wrap: nowrap; /* Ensure all stars stay on one line */
+    overflow: visible; /* Make sure all stars are visible */
   }
 `;
 
@@ -761,7 +746,8 @@ const SeashellButton = styled.button`
   }
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    padding: 0.4rem;
+    padding: 0.3rem;
+    flex-shrink: 0; /* Prevent shrinking on mobile */
     
     &:hover {
       transform: scale(1.1); /* Less dramatic on mobile for better UX */
