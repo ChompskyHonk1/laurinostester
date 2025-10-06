@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuoteLeft, faCheckCircle, faArrowRight, faStar, faStarHalfAlt } from "@fortawesome/free-solid-svg-icons";
@@ -15,12 +15,37 @@ export default function FeedbackPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showGoogleReview, setShowGoogleReview] = useState(false);
   const [showStarburst, setShowStarburst] = useState(false);
+  const [threshold, setThreshold] = useState(4.3); // Default fallback value
+  const [loadingThreshold, setLoadingThreshold] = useState(true);
 
   const calculateAverageRating = () => {
     const total = foodRating + atmosphereRating + serviceRating;
     return total / 3;
   };
 
+  // Fetch dynamic threshold from Google rating API
+  useEffect(() => {
+    const fetchThreshold = async () => {
+      try {
+        setLoadingThreshold(true);
+        const response = await fetch('/api/google-rating');
+        const data = await response.json();
+        
+        if (data.success && data.threshold) {
+          setThreshold(data.threshold);
+          console.log(`Dynamic threshold loaded: ${data.threshold} (current Google rating: ${data.currentRating})`);
+        } else {
+          console.warn('Failed to fetch dynamic threshold, using default:', data.error || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Error fetching threshold:', error);
+      } finally {
+        setLoadingThreshold(false);
+      }
+    };
+
+    fetchThreshold();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,8 +76,8 @@ export default function FeedbackPage() {
         setShowSuccess(true);
       }, 1500);
       
-      // Show Google review option if rating is 4.3 or higher
-       if (averageRating >= 4.3) {
+      // Show Google review option if rating meets or exceeds the dynamic threshold
+       if (averageRating >= threshold) {
          setTimeout(() => {
            // Automatically redirect to Google review with pre-filled rating
            handleGoogleReview();
@@ -336,13 +361,14 @@ export default function FeedbackPage() {
               </TotalSeashellsContainer>
               <TotalRatingValue>{calculateAverageRating().toFixed(1)}</TotalRatingValue>
             </TotalRatingDisplay>
+            
           </RatingSummary>
 
           <SubmitButton
             type="submit"
-            disabled={isSubmitting || !foodRating || !atmosphereRating || !serviceRating}
+            disabled={isSubmitting || loadingThreshold || !foodRating || !atmosphereRating || !serviceRating}
           >
-            {isSubmitting ? "Submitting..." : "Submit Feedback"}
+            {isSubmitting ? "Submitting..." : loadingThreshold ? "Loading..." : "Submit Feedback"}
             <FontAwesomeIcon icon={faArrowRight} />
           </SubmitButton>
         </FeedbackForm>
@@ -368,6 +394,15 @@ export default function FeedbackPage() {
               <FontAwesomeIcon icon={faArrowRight} />
             </GoogleReviewButton>
           </GoogleReviewPrompt>
+        )}
+
+        {!loadingThreshold && (
+          <SubtleGoalIndicator>
+            <GoalLine />
+            <GoalText>
+              Today's Goal: {threshold.toFixed(1)}+ stars
+            </GoalText>
+          </SubtleGoalIndicator>
         )}
       </FeedbackContainer>
     </FeedbackSection>
@@ -1133,6 +1168,73 @@ const TotalRatingValue = styled.div`
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
   min-width: 80px;
+`;
+
+// Threshold info styled components
+const ThresholdInfo = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.bluePastel}15, ${({ theme }) => theme.colors.lighterBlue}15);
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.lighterBlue}40;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+`;
+
+const ThresholdText = styled.div`
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.colors.primaryDark};
+  font-weight: 500;
+  line-height: 1.4;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 0.85rem;
+  }
+`;
+
+// Subtle goal indicator styled components
+const SubtleGoalIndicator = styled.div`
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  
+  &:hover {
+    opacity: 1;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+  }
+`;
+
+const GoalLine = styled.div`
+  height: 1px;
+  background: linear-gradient(90deg, transparent, ${({ theme }) => theme.colors.lighterBlue}60, transparent);
+  margin-bottom: 0.75rem;
+  width: 100%;
+  max-width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const GoalText = styled.div`
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.colors.lighterBlue};
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 0.75rem;
+  }
 `;
 
 // Starburst Animation Styled Components

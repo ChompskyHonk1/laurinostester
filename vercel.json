@@ -8,7 +8,11 @@
     "STRIPE_SECRET_KEY": "@stripe_secret_key",
     "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
     "EMAIL_SERVICE_USER": "@email_service_user",
-    "EMAIL_SERVICE_PASS": "@email_service_pass"
+    "EMAIL_SERVICE_PASS": "@email_service_pass",
+    "FIRECRAWL_API_KEY": "@firecrawl_api_key",
+    "GOOGLE_PLACE_ID": "@google_place_id",
+    "DEFAULT_THRESHOLD": "@default_threshold",
+    "RATING_CACHE_TTL": "@rating_cache_ttl"
   },
   "functions": {
     "src/app/api/**/*.js": {
