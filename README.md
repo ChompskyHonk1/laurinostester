@@ -1,4 +1,9 @@
+# Laurino's Tavern Website
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Latest Update
+Updated on: 2025-10-07
 
 ## Getting Started
 
