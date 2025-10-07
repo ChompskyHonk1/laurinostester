@@ -533,12 +533,13 @@ const HeaderTitle = styled.h1`
 `;
 
 const HeaderSubtitle = styled.p`
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.3rem;
   opacity: 0.95;
   max-width: 600px;
   margin: 0 auto;
-  font-weight: 300;
-  line-height: 1.4;
+  font-weight: 400;
+  line-height: 1.5;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
     font-size: 1rem;
@@ -577,13 +578,14 @@ const FormSection = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.8rem;
   margin-bottom: 2rem;
   color: ${({ theme }) => theme.colors.primaryDark};
   position: relative;
   padding-bottom: 0.5rem;
-  line-height: 1.2;
+  line-height: 1.3;
+  font-weight: 600;
   
   &::after {
     content: '';
@@ -624,7 +626,7 @@ const InputLabel = styled.label`
   margin-bottom: 0.75rem;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.primaryDark};
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.1rem;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
@@ -750,7 +752,7 @@ const RatingContainer = styled.div`
 const RatingLabel = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.colors.primaryDark};
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.2rem;
   min-width: 140px;
   text-align: center;
@@ -998,7 +1000,7 @@ const SuccessIcon = styled.div`
 `;
 
 const SuccessTitle = styled.h3`
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 2rem;
   margin: 1rem 0;
   position: relative;
@@ -1067,7 +1069,7 @@ const GoogleReviewPrompt = styled.div`
 `;
 
 const PromptTitle = styled.h3`
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 2rem;
   margin: 1rem 0;
   position: relative;
@@ -1102,7 +1104,7 @@ const GoogleReviewButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;

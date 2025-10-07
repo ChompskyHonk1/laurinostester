@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, Suspense } from 'react';
+import { useEffect, Suspense, useState } from 'react';
+import Calendar from './components/Calendar/Calendar';
 
 
 // HERO SECTION
@@ -21,6 +22,7 @@ const HeroSection = styled.section`
   justify-content: center;
   align-items: center;
   text-align: center;
+  transition: color 0.3s ease;
 
   .background-image {
     position: absolute;
@@ -29,7 +31,7 @@ const HeroSection = styled.section`
     /* Make sure the image covers the section */
     width: 100%;
     height: 100%;
-    object-fit: cover; 
+    object-fit: cover;
     z-index: -2; /* behind everything */
   }
 
@@ -42,6 +44,7 @@ const HeroSection = styled.section`
     height: 100%;
     background: rgba(0, 0, 0, 0.4);
     z-index: -1; /* between the image and the text */
+    transition: background 0.3s ease;
   }
 
   .hero-content {
@@ -57,6 +60,7 @@ const HeroSection = styled.section`
     margin-bottom: 1rem;
     letter-spacing: 1px;
        font-family: 'Aloja';
+    line-height: 1.2;
   }
 
   p {
@@ -75,21 +79,69 @@ const HeroSection = styled.section`
     text-decoration: none;
     border-radius: 4px;
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+      transform: translateY(-50%);
+      transition: left 0.6s ease;
+      z-index: -1;
+    }
 
     &:hover {
       background-color: ${({ theme }) => theme.colors.lighterBlue};
+      transform: translateY(-2px);
+      
+      &::before {
+        left: 100%;
+      }
     }
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     padding: 4rem 1.5rem;
+    min-height: 70vh;
 
     h1 {
       font-size: 2.2rem;
     }
     p {
       font-size: 1rem;
+    }
+    
+    .hero-content {
+      padding: 1.5rem;
+    }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 3rem 1rem;
+    min-height: 60vh;
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.8rem;
+    }
+    p {
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .hero-cta {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+    }
+    
+    .hero-content {
+      padding: 1rem;
     }
   }
 `;
@@ -211,9 +263,28 @@ const CarouselSection = styled.section`
       border-radius: 4px;
       font-weight: 600;
       transition: background 0.3s ease;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+        transform: translateY(-50%);
+        transition: left 0.6s ease;
+        z-index: -1;
+      }
 
       &:hover {
         background: ${({ theme }) => theme.colors.secondaryDark};
+        
+        &::before {
+          left: 100%;
+        }
       }
     }
   }
@@ -453,12 +524,149 @@ const CTAButton = styled.button`
   }
 `;
 
+// Easter Egg styled component
+const EasterEggContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.5s ease-in-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .easter-egg-content {
+    text-align: center;
+    color: ${({ theme }) => theme.colors.primaryLight};
+    animation: bounce 1s ease-in-out infinite alternate;
+
+    @keyframes bounce {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-20px); }
+    }
+
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      font-family: 'Aloja';
+      color: #FFD700;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    p {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .close-btn {
+      background: ${({ theme }) => theme.colors.primaryDark};
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: ${({ theme }) => theme.colors.secondaryDark};
+      }
+    }
+
+    .secret-message {
+      font-size: 1.2rem;
+      color: #FFD700;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+  }
+`;
+
+// Hidden clickable element for easter egg
+const SecretTrigger = styled.div`
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  background: rgba(255, 215, 0, 0.3);
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+  
+  &:hover {
+    opacity: 1;
+    background: rgba(255, 215, 0, 0.5);
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+  }
+  
+  /* Make it look like a clickable beer mug */
+  &::after {
+    content: '🍺';
+    font-size: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+`;
+
 // Simple loading fallback component
 const LoadingFallback = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
     Loading...
   </div>
 );
+
+// Simple Easter Egg Hook
+const useEasterEgg = () => {
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
+  
+  const triggerEasterEgg = () => {
+    setShowEasterEgg(true);
+    
+    // Play a fun sound effect
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (e) {
+      console.log('🎉 Easter Egg Activated!');
+    }
+  };
+  
+  const closeEasterEgg = () => {
+    setShowEasterEgg(false);
+  };
+  
+  return { showEasterEgg, triggerEasterEgg, closeEasterEgg };
+};
 
 // This component handles the scroll functionality with useSearchParams
 const ScrollHandler = ({ children }) => {
@@ -483,10 +691,28 @@ const ScrollHandler = ({ children }) => {
 };
 
 export default function HomePage() {
+  const { showEasterEgg, triggerEasterEgg, closeEasterEgg } = useEasterEgg();
+  
   return (
     <Suspense fallback={<LoadingFallback />}>
       <ScrollHandler>
         <>
+          {showEasterEgg && (
+            <EasterEggContainer>
+              <div className="easter-egg-content">
+                <h1>🍺 You Found the Secret! 🍺</h1>
+                <p>You've discovered the hidden treasure of Laurino's Tavern!</p>
+                <p>Here's a special message just for you:</p>
+                <p className="secret-message">
+                  "Life is uncertain, but the best clam chowder is always at Laurino's!"
+                </p>
+                <button className="close-btn" onClick={closeEasterEgg}>
+                  Close Secret Portal
+                </button>
+              </div>
+            </EasterEggContainer>
+          )}
+          
           <HeroSection>
           {/* The background image in the DOM */}
           <img
@@ -504,6 +730,8 @@ export default function HomePage() {
             <a href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="hero-cta">Order Now</a>
           </div>
         </HeroSection>
+        <Calendar onEasterEggTrigger={triggerEasterEgg} />
+
 
        
           <AboutSection id="about">
@@ -527,6 +755,7 @@ export default function HomePage() {
           </AboutSection>
 
           <CarouselSection>
+          <SecretTrigger onClick={triggerEasterEgg} />
           <h2>Try Our Favorites</h2>
           <div className="carousel">
             <div className="food-item">
@@ -563,7 +792,6 @@ export default function HomePage() {
             <a href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="order-now-btn">Order Now</a>
           </div>
         </CarouselSection>
-        
 
         <CateringSection>
           <div className="content">

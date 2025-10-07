@@ -348,11 +348,12 @@ export default function FeedbackPage() {
 // Styled Components
 const FeedbackSection = styled.section`
   background: ${({ theme }) => theme.colors.background};
-  color: ${({ theme }) => theme.colors.primaryDark};
+  color: ${({ theme }) => theme.colors.text};
   min-height: 100vh;
   padding: 0;
   position: relative;
   overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
   
   &::before {
     content: '';
@@ -372,14 +373,19 @@ const FeedbackContainer = styled.div`
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  background: ${({ theme }) => theme.colors.primaryLight};
+  background: ${({ theme }) => theme.colors.cardBackground};
   position: relative;
   z-index: 1;
   animation: fadeIn 0.8s ease-in;
+  transition: background-color 0.3s ease;
   
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    border-radius: 0;
   }
 `;
 
@@ -491,7 +497,7 @@ const FormSection = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.8rem;
   margin-bottom: 2rem;
   color: ${({ theme }) => theme.colors.primaryDark};
@@ -531,7 +537,7 @@ const ToggleLabel = styled.label`
   cursor: pointer;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.primaryDark};
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.1rem;
   transition: all 0.3s ease;
   
@@ -565,9 +571,15 @@ const InputLabel = styled.label`
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.colors.primaryDark};
-  font-family: 'Aloja', sans-serif;
+  color: ${({ theme }) => theme.colors.text};
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.1rem;
+  transition: color 0.3s ease;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const InputField = styled.input`
@@ -578,7 +590,7 @@ const InputField = styled.input`
   font-size: 1rem;
   transition: all 0.3s ease;
   background: ${({ theme }) => theme.colors.background};
-  color: ${({ theme }) => theme.colors.primaryDark};
+  color: ${({ theme }) => theme.colors.text};
   
   &:focus {
     outline: none;
@@ -588,8 +600,13 @@ const InputField = styled.input`
   }
   
   &::placeholder {
-    color: ${({ theme }) => theme.colors.secondaryDark};
+    color: ${({ theme }) => theme.colors.mutedText};
     opacity: 0.6;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
   }
 `;
 
@@ -601,7 +618,7 @@ const TextAreaField = styled.textarea`
   font-size: 1rem;
   transition: all 0.3s ease;
   background: ${({ theme }) => theme.colors.background};
-  color: ${({ theme }) => theme.colors.primaryDark};
+  color: ${({ theme }) => theme.colors.text};
   resize: vertical;
   min-height: 140px;
   font-family: inherit;
@@ -614,8 +631,14 @@ const TextAreaField = styled.textarea`
   }
   
   &::placeholder {
-    color: ${({ theme }) => theme.colors.secondaryDark};
+    color: ${({ theme }) => theme.colors.mutedText};
     opacity: 0.6;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0.8rem 1rem;
+    min-height: 120px;
+    font-size: 0.95rem;
   }
 `;
 
@@ -662,7 +685,7 @@ const RatingContainer = styled.div`
 const RatingLabel = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.colors.primaryDark};
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.2rem;
   min-width: 140px;
 `;
@@ -895,7 +918,7 @@ const SuccessIcon = styled.div`
 `;
 
 const SuccessTitle = styled.h3`
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 2rem;
   margin: 1rem 0;
   position: relative;
@@ -949,7 +972,7 @@ const GoogleReviewPrompt = styled.div`
 `;
 
 const PromptTitle = styled.h3`
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 2rem;
   margin: 1rem 0;
   position: relative;
@@ -974,7 +997,7 @@ const GoogleReviewButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Aloja', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;

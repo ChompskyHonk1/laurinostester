@@ -761,13 +761,18 @@ export default function MenuPage() {
 /* ----------------- Styled Components ----------------- */
 
 const MenuSection = styled.section`
-  background: ${({ theme }) => theme.colors.light || "#fefefe"};
-  color: ${({ theme }) => theme.colors.primaryDark || "#2a2a2a"};
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
   min-height: 100vh;
   padding: 2rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 1rem 0;
+  }
 `;
 
 const MenuHeader = styled.div`
@@ -782,7 +787,8 @@ const MenuHeader = styled.div`
     font-weight: 400;
     margin-bottom: 1rem;
     letter-spacing: 0.5px;
-    color: ${({ theme }) => theme.colors.primaryDark || "#2a2a2a"};
+    color: ${({ theme }) => theme.colors.text};
+    transition: color 0.3s ease;
   }
 
   h2 {
@@ -791,14 +797,50 @@ const MenuHeader = styled.div`
     font-weight: 300;
     margin-bottom: 1rem;
     letter-spacing: 0.5px;
-    color: ${({ theme }) => theme.colors.primaryDark || "#2a2a2a"};
+    color: ${({ theme }) => theme.colors.text};
+    transition: color 0.3s ease;
   }
 
   p {
-    color: ${({ theme }) => theme.colors.secondaryDark || "#555"};
+    color: ${({ theme }) => theme.colors.mutedText};
     font-size: 1.1rem;
     line-height: 1.6;
     font-weight: 300;
+    transition: color 0.3s ease;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+    
+    h1 {
+      font-size: 2.5rem;
+    }
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+    
+    p {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+    
+    h1 {
+      font-size: 2rem;
+    }
+    
+    h2 {
+      font-size: 1.2rem;
+    }
+    
+    p {
+      font-size: 0.95rem;
+    }
   }
 `;
 
@@ -924,9 +966,12 @@ const MenuItem = styled.div`
   margin-bottom: 1.5rem;
   position: relative;
   transition: transform 0.2s ease;
-
+  padding: 0.5rem;
+  border-radius: 8px;
+  
   &:hover {
     transform: translateY(-2px);
+    background: ${({ theme }) => theme.colors.background};
   }
 
   .item-info {
@@ -937,46 +982,80 @@ const MenuItem = styled.div`
     .item-name {
       font-weight: 500;
       font-size: 1.1rem;
-      color: ${({ theme }) => theme.colors.primaryDark || "#2a2a2a"};
+      color: ${({ theme }) => theme.colors.text};
       flex-shrink: 0;
+      transition: color 0.3s ease;
     }
 
     .item-line {
       flex-grow: 1;
       height: 1px;
-      background: ${({ theme }) => theme.colors.tertiaryDark || "#ddd"};
+      background: ${({ theme }) => theme.colors.border};
       margin: 0 0.5rem;
       position: relative;
       top: -0.3rem;
+      transition: background-color 0.3s ease;
     }
 
     .item-price {
       font-weight: 600;
-      color: ${({ theme }) => theme.colors.secondaryDark || "#555"};
+      color: ${({ theme }) => theme.colors.mutedText};
       flex-shrink: 0;
+      transition: color 0.3s ease;
     }
   }
 
   .item-desc {
     font-size: 0.9rem;
-    color: ${({ theme }) => theme.colors.secondaryDark || "#555"};
+    color: ${({ theme }) => theme.colors.mutedText};
     line-height: 1.4;
     max-width: 90%;
+    transition: color 0.3s ease;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    margin-bottom: 1rem;
+    padding: 0.3rem;
+    
+    .item-info {
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+    
+    .item-name {
+      font-size: 1rem;
+    }
+    
+    .item-desc {
+      font-size: 0.85rem;
+      max-width: 100%;
+    }
   }
 `;
 
 const MenuFooter = styled.footer`
   margin-top: 2rem;
   padding: 1.5rem;
-  border-top: 1px solid ${({ theme }) => theme.colors.tertiaryDark || "#ddd"};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
   width: 100%;
   max-width: 1000px;
   text-align: center;
+  transition: border-color 0.3s ease;
 
   p {
     font-size: 0.8rem;
-    color: ${({ theme }) => theme.colors.secondaryDark || "#555"};
+    color: ${({ theme }) => theme.colors.mutedText};
     margin-bottom: 0.5rem;
     font-style: italic;
+    transition: color 0.3s ease;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    margin-top: 1rem;
+    padding: 1rem;
+    
+    p {
+      font-size: 0.75rem;
+    }
   }
 `;

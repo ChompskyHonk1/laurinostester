@@ -10,6 +10,7 @@ const FooterContainer = styled.footer`
   color: ${({ theme }) => theme.colors.primaryLight};
   padding: 2rem;
   text-align: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
   
   .footer-content {
     display: flex;
@@ -27,21 +28,25 @@ const FooterContainer = styled.footer`
     background-color: ${({ theme }) => theme.colors.primaryLight};
     opacity: 0.2;
     margin: 1rem 0;
+    transition: opacity 0.3s ease;
   }
   
   /* Social links container */
   .socials {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
     
     a {
       color: ${({ theme }) => theme.colors.primaryLight};
       text-decoration: none;
       font-size: 1.4rem; /* icon size */
-      transition: color 0.3s ease;
+      transition: color 0.3s ease, transform 0.2s ease;
       
       &:hover {
         color: ${({ theme }) => theme.colors.lighterBlue};
+        transform: translateY(-2px);
       }
     }
   }
@@ -49,6 +54,8 @@ const FooterContainer = styled.footer`
   .footer-nav {
     display: flex;
     gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
     
     a, .nav-link {
       color: ${({ theme }) => theme.colors.primaryLight};
@@ -56,9 +63,11 @@ const FooterContainer = styled.footer`
       font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
+      transition: color 0.3s ease, transform 0.2s ease;
       
       &:hover {
         color: ${({ theme }) => theme.colors.lighterBlue};
+        transform: translateY(-1px);
       }
     }
     
@@ -72,9 +81,11 @@ const FooterContainer = styled.footer`
       text-decoration: none;
       font-size: 0.9rem;
       font-weight: 500;
+      transition: color 0.3s ease, transform 0.2s ease;
       
       &:hover {
         color: ${({ theme }) => theme.colors.lighterBlue};
+        transform: translateY(-1px);
       }
     }
   }
@@ -83,12 +94,43 @@ const FooterContainer = styled.footer`
     margin: 0;
     font-size: 0.9rem;
     opacity: 0.8;
+    transition: opacity 0.3s ease;
   }
   
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     .footer-content {
       gap: 1rem;
       padding: 0 1rem;
+    }
+    
+    .footer-nav {
+      gap: 1rem;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .socials {
+      gap: 0.8rem;
+    }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 1.5rem 1rem;
+    
+    .footer-nav {
+      gap: 0.8rem;
+    }
+    
+    .socials a {
+      font-size: 1.2rem;
+    }
+    
+    .footer-nav a, .footer-nav .nav-link, .footer-nav button.nav-link {
+      font-size: 0.85rem;
+    }
+    
+    .copyright {
+      font-size: 0.8rem;
     }
   }
 `;

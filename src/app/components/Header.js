@@ -14,6 +14,7 @@ import {
   faBookOpen,
   faStar
 } from "@fortawesome/free-solid-svg-icons";
+import DarkModeToggle from "./DarkModeToggle";
 
 const HeaderContainer = styled.header`
   z-index: 9999;
@@ -86,9 +87,28 @@ const HeaderContainer = styled.header`
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+      transform: translateY(-50%);
+      transition: left 0.6s ease;
+      z-index: -1;
+    }
     
     &:hover {
       background: ${({ theme }) => theme.colors.lighterBlue};
+      
+      &::before {
+        left: 100%;
+      }
     }
   }
 
@@ -337,9 +357,12 @@ export default function Header() {
   return (
     <HeaderContainer>
       <div className="main-nav">
-        <Link href="/" style={{ textDecoration: 'none' }}>
-          <div className="logo">Laurino&apos;s Tavern</div>
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <div className="logo">Laurino&apos;s Tavern</div>
+          </Link>
+          <DarkModeToggle />
+        </div>
         <nav>
           {/* Always visible links */}
           <div className="always-visible-links">
