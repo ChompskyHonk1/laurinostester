@@ -24,6 +24,8 @@ const HeaderContainer = styled.header`
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  box-shadow: ${({ theme }) => theme.shadows.light};
+  backdrop-filter: blur(10px);
 
   .top-bar {
     display: flex;
@@ -89,6 +91,8 @@ const HeaderContainer = styled.header`
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    padding: 0.5rem 1rem;
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
     
     &::before {
       content: '';
@@ -97,7 +101,7 @@ const HeaderContainer = styled.header`
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
       transform: translateY(-50%);
       transition: left 0.6s ease;
       z-index: -1;
@@ -105,6 +109,8 @@ const HeaderContainer = styled.header`
     
     &:hover {
       background: ${({ theme }) => theme.colors.lighterBlue};
+      transform: translateY(-2px);
+      box-shadow: ${({ theme }) => theme.shadows.medium};
       
       &::before {
         left: 100%;

@@ -147,40 +147,52 @@ const CalendarContainer = styled.section`
     background: ${({ theme }) => theme.colors.cardBackground};
     border-radius: 8px;
     border: 1px solid ${({ theme }) => theme.colors.border};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
     h3 {
       color: ${({ theme }) => theme.colors.text};
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       font-family: sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
     }
 
     .event-item {
       background: ${({ theme }) => theme.colors.background};
-      padding: 1rem;
+      padding: 1.25rem;
       margin-bottom: 1rem;
-      border-radius: 6px;
+      border-radius: 8px;
       border-left: 4px solid ${({ theme }) => theme.colors.tertiaryDark};
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
       &:hover {
         transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        background: ${({ theme }) => theme.colors.lighterBlue};
       }
 
       .event-title {
         font-weight: 600;
         color: ${({ theme }) => theme.colors.text};
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        line-height: 1.3;
       }
 
       .event-date-time {
-        color: ${({ theme }) => theme.colors.mutedText};
+        color: ${({ theme }) => theme.colors.tertiaryDark};
         font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+        opacity: 0.9;
       }
 
       .event-description {
         color: ${({ theme }) => theme.colors.text};
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        opacity: 0.85;
       }
     }
   }
@@ -211,6 +223,115 @@ const CalendarContainer = styled.section`
     .event {
       font-size: 0.7rem;
       padding: 0.2rem 0.4rem;
+    }
+
+    .events-list {
+      padding: 1rem;
+      
+      h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .event-item {
+        padding: 1rem;
+        
+        .event-title {
+          font-size: 1rem;
+        }
+        
+        .event-date-time {
+          font-size: 0.85rem;
+        }
+        
+        .event-description {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 1rem 0.5rem;
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-wrapper {
+      padding: 0.75rem;
+    }
+
+    .calendar-header {
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1rem;
+
+      .month-year {
+        font-size: 1.1rem;
+        text-align: center;
+      }
+
+      .nav-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 150px;
+      }
+    }
+
+    .calendar-grid {
+      gap: 0.5px;
+    }
+
+    .day-header {
+      padding: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .day-cell {
+      min-height: 60px;
+      padding: 0.2rem;
+    }
+
+    .day-number {
+      font-size: 0.9rem;
+    }
+
+    .event {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.3rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .events-list {
+      padding: 0.75rem;
+      margin-top: 1.5rem;
+      
+      h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .event-item {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        
+        .event-title {
+          font-size: 0.95rem;
+          margin-bottom: 0.3rem;
+        }
+        
+        .event-date-time {
+          font-size: 0.8rem;
+          margin-bottom: 0.5rem;
+        }
+        
+        .event-description {
+          font-size: 0.85rem;
+        }
+      }
     }
   }
 `;

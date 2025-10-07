@@ -216,9 +216,25 @@ const CarouselSection = styled.section`
   .carousel {
     margin-top: 2rem;
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
     overflow-x: auto;
     padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: ${({ theme }) => theme.colors.background};
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.colors.tertiaryDark};
+      border-radius: 4px;
+    }
 
     .food-item {
       width: 300px;
@@ -232,18 +248,54 @@ const CarouselSection = styled.section`
       justify-content: flex-start;
       padding: 1rem;
       color: ${({ theme }) => theme.colors.primaryLight};
+      scroll-snap-align: start;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
 
       h3 {
         margin-bottom: 0.75rem;
         font-size: 1.2rem;
-        
+        text-align: center;
+        line-height: 1.3;
       }
 
       img {
         width: 100%;
         height: 200px;
-        object-fit: cover; 
+        object-fit: cover;
         border-radius: 6px;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  /* Mobile carousel improvements */
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    .carousel {
+      gap: 1rem;
+      padding: 0 1rem 1rem;
+      margin: 2rem -1rem 0;
+
+      .food-item {
+        width: 280px;
+        padding: 0.75rem;
+
+        h3 {
+          font-size: 1.1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        img {
+          height: 180px;
+        }
       }
     }
   }
@@ -432,37 +484,66 @@ const Section = styled.section`
   .merch-item {
     background: ${({ theme }) => theme.colors?.accent || '#e5e5e5'};
     color: ${({ theme }) => theme.colors?.primaryDark || '#333'};
--   width: 200px;
--   height: 250px;
-+   width: 250px;
-+   height: 300px; 
-    border-radius: 8px;
+    width: 250px;
+    height: 300px;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
-+   justify-content: space-between; /* Keep image & text from crowding each other */
+    justify-content: space-between;
     align-items: center;
     font-weight: bold;
-    padding: 1rem;
-    transition: background 0.3s, color 0.3s;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
     &:hover {
       background: ${({ theme }) => theme.colors?.lighterBlue || '#cce0ff'};
       color: ${({ theme }) => theme.colors?.primaryLight || '#fff'};
+      transform: translateY(-8px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
 
     span {
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
+      font-size: 1.1rem;
+      text-align: center;
     }
 
-+   /* Responsive tweak for small screens */
-+   @media (max-width: 768px) {
-+     width: 150px;
-+     height: 200px;
-+   }
-  }
-}
+    /* Responsive tweak for tablet */
+    @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+      width: 220px;
+      height: 270px;
+      padding: 1.25rem;
+      
+      span {
+        font-size: 1rem;
+      }
+    }
+
+    /* Responsive tweak for mobile */
+    @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+      width: 160px;
+      height: 200px;
+      padding: 1rem;
+      gap: 0.5rem;
+      
+      span {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+      }
     }
   }
+}
+
+/* Mobile merch grid adjustments */
+@media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+  .merch-grid {
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+}
 `;
 
 // The styled button
@@ -521,6 +602,39 @@ const CTAButton = styled.button`
   /* Mobile-friendly adjustments */
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     padding: 2rem 1rem;
+    min-height: 60vh;
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .webcam-wrapper {
+      width: 95%;
+    }
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 1.5rem 1rem;
+    min-height: 50vh;
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .webcam-wrapper {
+      width: 100%;
+      
+      iframe {
+        border-radius: 6px;
+      }
+    }
   }
 `;
 

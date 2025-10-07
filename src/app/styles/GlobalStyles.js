@@ -79,6 +79,51 @@ const GlobalStyles = createGlobalStyle`
       line-height: 1.6;
     }
   }
+
+  /* Enhanced mobile optimizations */
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    /* Improve tap targets for better mobile UX */
+    button, a, input, textarea, select {
+      min-height: 48px;
+      min-width: 48px;
+      padding: 0.75rem 1rem;
+    }
+
+    /* Better spacing for mobile */
+    section {
+      padding: 3rem 1rem !important;
+    }
+
+    /* Improved text rendering on mobile */
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Prevent horizontal scroll on mobile */
+    body {
+      overflow-x: hidden;
+    }
+
+    /* Better image handling on mobile */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Improved scroll performance */
+    * {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Tablet optimizations */
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    section {
+      padding: 3.5rem 1.5rem !important;
+    }
+  }
 `;
 
 export default GlobalStyles;
