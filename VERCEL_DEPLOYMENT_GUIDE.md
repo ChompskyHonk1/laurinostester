@@ -69,3 +69,6 @@ The calendar will show sample events like "Live Music Night" and "Trivia Night" 
 
 ## Support
 If you encounter any issues during deployment, the application is designed to fail gracefully and will still provide a good user experience with mock data.
+
+## Last Updated
+Deployment guide updated on: 2025-10-07
