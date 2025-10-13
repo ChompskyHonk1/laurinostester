@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, getDay } from 'date-fns';
-import { useTheme } from '../../context/ThemeContext';
+
 
 const CalendarContainer = styled.section`
   background: ${({ theme }) => theme.colors.background};
@@ -337,7 +337,7 @@ const CalendarContainer = styled.section`
 `;
 
 const Calendar = ({ onEasterEggTrigger }) => {
-  const { isDarkMode } = useTheme();
+  
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -512,7 +512,7 @@ const Calendar = ({ onEasterEggTrigger }) => {
               </div>
             ))}
           {events.filter(event => new Date(event.date) >= new Date()).length === 0 && (
-            <div style={{ textAlign: 'center', color: isDarkMode ? '#a0a0a0' : '#666', padding: '2rem' }}>
+            <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
               No upcoming events scheduled. Check back soon!
             </div>
           )}

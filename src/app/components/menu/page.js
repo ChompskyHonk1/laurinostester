@@ -764,31 +764,49 @@ const MenuSection = styled.section`
   background: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.text};
   min-height: 100vh;
-  padding: 2rem 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: background-color 0.3s ease, color 0.3s ease;
-  
-  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    padding: 1rem 0;
-  }
 `;
 
 const MenuHeader = styled.div`
-  margin-bottom: 3rem;
   text-align: center;
-  max-width: 700px;
-  padding: 0 1.5rem;
+  padding: 2rem 2rem 3rem;
+  background-color: ${({ theme }) => theme.colors.bluePastel};
+  position: relative;
+  margin-bottom: 3rem;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: ${({ theme }) => theme.colors.light};
+    z-index: 1;
+  }
+
+  h1, h2, p {
+    position: relative;
+    z-index: 2;
+    color: ${({ theme }) => theme.colors.primaryLight};
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
 
   h1 {
     font-family: 'Aloja', serif;
-    font-size: 3rem;
+    font-size: 2.7rem;
     font-weight: 400;
     margin-bottom: 1rem;
     letter-spacing: 0.5px;
-    color: ${({ theme }) => theme.colors.text};
-    transition: color 0.3s ease;
   }
 
   h2 {
@@ -797,16 +815,44 @@ const MenuHeader = styled.div`
     font-weight: 300;
     margin-bottom: 1rem;
     letter-spacing: 0.5px;
-    color: ${({ theme }) => theme.colors.text};
-    transition: color 0.3s ease;
   }
 
   p {
-    color: ${({ theme }) => theme.colors.mutedText};
     font-size: 1.1rem;
     line-height: 1.6;
     font-weight: 300;
-    transition: color 0.3s ease;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    padding: 2rem 1.5rem 2.5rem;
+    
+    h1 {
+      font-size: 2.5rem;
+    }
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+    
+    p {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 1.5rem 1rem 2rem;
+    
+    h1 {
+      font-size: 2rem;
+    }
+    
+    h2 {
+      font-size: 1.2rem;
+    }
+    
+    p {
+      font-size: 0.95rem;
+    }
   }
   
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
@@ -868,8 +914,7 @@ const NavItem = styled.button.withConfig({
   background: none;
   border: none;
   padding: 1rem 1.5rem;
-  color: ${({ active, theme }) =>
-    active ? theme.colors.accent || "#f8f3e9" : theme.colors.light || "#fefefe"};
+  color: #ffffff;
   font-size: 0.9rem;
   font-weight: ${({ active }) => (active ? 600 : 400)};
   letter-spacing: 0.5px;
@@ -887,12 +932,12 @@ const NavItem = styled.button.withConfig({
     transform: translateX(-50%);
     width: ${({ active }) => (active ? "30%" : "0")};
     height: 2px;
-    background-color: ${({ theme }) => theme.colors.accent || "#f8f3e9"};
+    background-color: #ffffff;
     transition: width 0.3s ease;
   }
 
   &:hover {
-    color: ${({ theme }) => theme.colors.accent || "#f8f3e9"};
+    color: #ffffff;
     &:after {
       width: 30%;
     }
@@ -902,7 +947,7 @@ const NavItem = styled.button.withConfig({
 const MenuContent = styled.div`
   max-width: 1000px;
   width: 100%;
-  padding: 0 1.5rem;
+  padding: 0 1.5rem 2rem;
 `;
 
 const MenuCategory = styled.div`

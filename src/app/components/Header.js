@@ -14,7 +14,8 @@ import {
   faBookOpen,
   faStar
 } from "@fortawesome/free-solid-svg-icons";
-import DarkModeToggle from "./DarkModeToggle";
+
+
 
 const HeaderContainer = styled.header`
   z-index: 9999;
@@ -60,6 +61,26 @@ const HeaderContainer = styled.header`
   .logo {
     font-size: 1.5rem;
     font-family: 'Aloja';
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  
+  .logo-text {
+    margin-bottom: 0.25rem;
+  }
+  
+  .pumpkin-icon {
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
   }
   
   a {
@@ -340,12 +361,87 @@ const HeaderContainer = styled.header`
       margin-right: auto; /* Push the logo to the left */
     }
   }
+  
+  /* Bat animations */
+  .bat-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+  }
+  
+  .bat {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: 0;
+    animation: flyAcross 5s ease-in-out;
+    
+    &.bat1 {
+      top: 20%;
+      animation-delay: 0s;
+    }
+    
+    &.bat2 {
+      top: 40%;
+      animation-delay: 0.5s;
+    }
+  }
+  
+  @keyframes flyAcross {
+    0% {
+      left: -50px;
+      opacity: 0;
+      transform: translateY(0px) rotate(0deg);
+    }
+    10% {
+      opacity: 1;
+    }
+    25% {
+      transform: translateY(-30px) rotate(-15deg);
+    }
+    50% {
+      transform: translateY(30px) rotate(15deg);
+    }
+    75% {
+      transform: translateY(-20px) rotate(-10deg);
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      left: calc(100% + 50px);
+      opacity: 0;
+      transform: translateY(0px) rotate(0deg);
+    }
+  }
+  
+  
 `;
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showBats, setShowBats] = useState(false);
+  
   
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  
+  const handleLogoClick = (e) => {
+    // Always trigger bats when logo is clicked on home page
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname;
+      if (currentPath === '/' || currentPath === '' || currentPath.includes('/page')) {
+        e.preventDefault();
+        setShowBats(true);
+        console.log('Bats triggered!', showBats); // Debug log
+        // Hide bats after animation completes
+        setTimeout(() => setShowBats(false), 5000);
+      }
+    }
+  };
   
   // Prevent scrolling when menu is open
   useEffect(() => {
@@ -361,13 +457,25 @@ export default function Header() {
   }, [menuOpen]);
 
   return (
-    <HeaderContainer>
+    <>
+      <HeaderContainer>
       <div className="main-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <div className="logo">Laurino&apos;s Tavern</div>
+          <Link href="/" style={{ textDecoration: 'none' }} onClick={handleLogoClick}>
+            <div className="logo">
+              <div className="logo-text">Laurino&apos;s Tavern</div>
+              <svg className="pumpkin-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C12 2 10 4 10 6C10 8 12 10 12 10C12 10 14 8 14 6C14 4 12 2 12 2Z" fill="#FF6B35"/>
+                <ellipse cx="12" cy="16" rx="8" ry="7" fill="#FF8C42"/>
+                <path d="M8 14C8 14 9 15 10 15C11 15 12 14 12 14" stroke="#2C5F7C" strokeWidth="1"/>
+                <path d="M14 14C14 14 15 15 16 15C17 15 18 14 18 14" stroke="#2C5F7C" strokeWidth="1"/>
+                <circle cx="9" cy="13" r="1" fill="#2C5F7C"/>
+                <circle cx="15" cy="13" r="1" fill="#2C5F7C"/>
+                <path d="M12 10C12 10 11 12 11 14C11 16 12 18 12 18" stroke="#FF6B35" strokeWidth="1"/>
+              </svg>
+            </div>
           </Link>
-          <DarkModeToggle />
+          
         </div>
         <nav>
           {/* Always visible links */}
@@ -478,5 +586,28 @@ export default function Header() {
         </nav>
       </div>
     </HeaderContainer>
+    
+    {/* Bat animations */}
+    {showBats && (
+      <div className="bat-container">
+        <svg className="bat bat1" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 5C20 5 15 8 15 12C15 16 20 20 20 20C20 20 25 16 25 12C25 8 20 5 20 5Z" fill="#2C5F7C"/>
+          <ellipse cx="20" cy="25" rx="8" ry="6" fill="#1a1a1a"/>
+          <path d="M12 20C12 20 15 22 18 22C21 22 24 20 24 20" stroke="#FF6B35" strokeWidth="1"/>
+          <path d="M16 20C16 20 17 21 18 21C19 21 20 20 20 20" stroke="#FF6B35" strokeWidth="1"/>
+          <circle cx="17" cy="23" r="1" fill="#FF6B35"/>
+          <circle cx="23" cy="23" r="1" fill="#FF6B35"/>
+        </svg>
+        <svg className="bat bat2" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 5C20 5 15 8 15 12C15 16 20 20 20 20C20 20 25 16 25 12C25 8 20 5 20 5Z" fill="#2C5F7C"/>
+          <ellipse cx="20" cy="25" rx="8" ry="6" fill="#1a1a1a"/>
+          <path d="M12 20C12 20 15 22 18 22C21 22 24 20 24 20" stroke="#FF6B35" strokeWidth="1"/>
+          <path d="M16 20C16 20 17 21 18 21C19 21 20 20 20 20" stroke="#FF6B35" strokeWidth="1"/>
+          <circle cx="17" cy="23" r="1" fill="#FF6B35"/>
+          <circle cx="23" cy="23" r="1" fill="#FF6B35"/>
+        </svg>
+      </div>
+    )}
+    </>
   );
 }

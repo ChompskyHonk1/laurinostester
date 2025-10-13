@@ -23,6 +23,9 @@ const HeroSection = styled.section`
   align-items: center;
   text-align: center;
   transition: color 0.3s ease;
+  margin: 0; /* Ensure no default margin */
+  position: relative; /* For proper stacking context */
+  z-index: 1; /* Ensure proper layering */
 
   .background-image {
     position: absolute;
@@ -123,25 +126,32 @@ const HeroSection = styled.section`
   }
   
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    padding: 3rem 1rem;
-    min-height: 60vh;
+    padding: 1.5rem 0.75rem;
+    min-height: 45vh;
 
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.8rem;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
     }
     p {
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      line-height: 1.4;
     }
     
     .hero-cta {
-      padding: 0.6rem 1.2rem;
-      font-size: 0.9rem;
+      padding: 0.8rem 1.5rem;
+      font-size: 0.95rem;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .hero-content {
-      padding: 1rem;
+      padding: 0.75rem;
+      max-width: 95%;
     }
   }
 `;
@@ -157,6 +167,9 @@ const AboutSection = styled.section`
   justify-content: center; 
   /* Border using tertiaryDark */
   border: 2px solid ${({ theme }) => theme.colors.tertiaryDark};
+  margin: 2rem 0 0 0; /* Add top margin for spacing from previous section */
+  position: relative; /* For proper stacking context */
+  z-index: 1; /* Ensure proper layering */
 
   .about-content {
     flex: 1;
@@ -197,6 +210,9 @@ const CarouselSection = styled.section`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin: 2rem 0 0 0; /* Add top margin for spacing from previous section */
+  position: relative; /* For proper stacking context */
+  z-index: 1; /* Ensure proper layering */
 
   h2 {
     color: ${({ theme }) => theme.colors.primaryLight};
@@ -204,7 +220,7 @@ const CarouselSection = styled.section`
     font-family: 'Aloja';
 }
   .subtext  {
-    color: ${({ theme }) => theme.colors.primaryDark};
+    color: #ffffff;
     margin-bottom: .25rem;
        
   }
@@ -279,23 +295,54 @@ const CarouselSection = styled.section`
 
   /* Mobile carousel improvements */
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 3rem 1rem 2rem;
+    
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+    
+    .subtext {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
     .carousel {
-      gap: 1rem;
-      padding: 0 1rem 1rem;
-      margin: 2rem -1rem 0;
+      gap: 0.75rem;
+      padding: 0 0.75rem 1rem;
+      margin: 1.5rem -0.75rem 0;
 
       .food-item {
-        width: 280px;
+        width: 260px;
         padding: 0.75rem;
 
         h3 {
-          font-size: 1.1rem;
+          font-size: 1rem;
           margin-bottom: 0.5rem;
+          line-height: 1.2;
+        }
+        
+        p {
+          font-size: 0.85rem;
+          line-height: 1.3;
         }
 
         img {
-          height: 180px;
+          height: 160px;
         }
+      }
+    }
+    
+    .order-cta {
+      margin-top: 1.5rem;
+      
+      .order-now-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95rem;
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
@@ -556,10 +603,28 @@ const CTAButton = styled.button`
   border: none;
   cursor: pointer;
   font-weight: 600;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 1rem;
 
   &:hover {
     background: ${({ theme }) => theme.colors?.secondaryDark || '#555'};
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+    min-height: 48px;
+    margin-bottom: 1.5rem;
   }
 `;
 
@@ -615,24 +680,27 @@ const CTAButton = styled.button`
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    padding: 1.5rem 1rem;
-    min-height: 50vh;
+    padding: 2.5rem 1rem;
+    min-height: 40vh;
 
     h2 {
-      font-size: 1.5rem;
-      margin-bottom: 0.6rem;
+      font-size: 1.6rem;
+      margin-bottom: 0.75rem;
     }
 
     p {
       font-size: 0.9rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
     }
 
     .webcam-wrapper {
       width: 100%;
+      max-width: 100%;
       
       iframe {
         border-radius: 6px;
+        aspect-ratio: 16/9;
       }
     }
   }
@@ -806,6 +874,39 @@ const ScrollHandler = ({ children }) => {
 
 export default function HomePage() {
   const { showEasterEgg, triggerEasterEgg, closeEasterEgg } = useEasterEgg();
+  // Popular food items for the carousel
+  const favoriteItems = [
+    {
+      name: "Lobster Roll",
+      image: "/LobsterRoll.jpg",
+      description: "Chilled knuckle-and-claw lobster lightly dressed in lemon-mayo"
+    },
+    {
+      name: "Fish & Chips",
+      image: "/FishandChips.jpg",
+      description: "Crispy cod with our famous tartar sauce"
+    },
+    {
+      name: "Homemade Clam Chowder",
+      image: "/Unknown-40.jpg",
+      description: "New England style clam chowder, a Cape Cod classic"
+    },
+    {
+      name: "Fish Tacos",
+      image: "/FishTacos.jpg",
+      description: "Fried cod with pico de gallo and lemon mayo"
+    },
+    {
+      name: "Oysters",
+      image: "/Oysters.jpg",
+      description: "Ice-cold Brewster oysters on the half shell"
+    },
+    {
+      name: "Burger",
+      image: "/Burger.jpg",
+      description: "8 oz flame-grilled burger with your choice of toppings"
+    }
+  ];
   
   return (
     <Suspense fallback={<LoadingFallback />}>
@@ -841,12 +942,42 @@ export default function HomePage() {
           <div className="hero-content">
             <h1>Welcome to Laurino&apos;s Tavern</h1>
             <p>Serving up local favorites on Cape Cod for generations</p>
-            <a href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="hero-cta">Order Now</a>
+        <a href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="hero-cta">Order Now</a>
           </div>
         </HeroSection>
-        <Calendar onEasterEggTrigger={triggerEasterEgg} />
+        {/* Try Our Favorites Carousel Section */}
+        <CarouselSection>
+          <h2>Try Our Favorites</h2>
+          <p className="subtext">Popular dishes that keep our customers coming back</p>
+          
+          <div className="carousel">
+            {favoriteItems.map((item, index) => (
+              <div key={index} className="food-item">
+                <h3>{item.name}</h3>
+                <img 
+                  src={item.image} 
+                  alt={item.name}
+                  onError={(e) => {
+                    e.target.src = '/Pizza.png'; // Fallback image
+                  }}
+                />
+                <p>{item.description}</p>
+              </div>
+            ))}
+          </div>
+          
+          <div className="order-cta">
+            <a 
+              href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" 
+              className="order-now-btn"
+            >
+              Order Now
+            </a>
+          </div>
+        </CarouselSection>
 
-
+          
+        
        
           <AboutSection id="about">
             <div className="about-content">
@@ -868,49 +999,13 @@ export default function HomePage() {
             </div>
           </AboutSection>
 
-          <CarouselSection>
-          <SecretTrigger onClick={triggerEasterEgg} />
-          <h2>Try Our Favorites</h2>
-          <div className="carousel">
-            <div className="food-item">
-              <h3>Lobster Roll</h3>
-              <img src="/LobsterRoll.jpg" alt="Lobster Roll" />
-           
-            </div>
-            <div className="food-item">
-              <h3> Fish Tacos</h3>
-              <img src="/FishTacos.jpg" alt="Fish Tacos" />
-            </div>
-            <div className="food-item">
-              <h3>Home Made Pan Pizza</h3>
-              <img src="/Pizza.png" alt="Pizza" />
-            </div>
-            <div className="food-item">
-              <h3>Fish &amp; Chips</h3>
-              <img src="/FishandChips.jpg" alt="Fish &amp; Chips" />
-            </div>
-            <div className="food-item">
-              <h3>Burgers</h3>
-              <img src="/Burger.jpg" alt="Oysters"  />
-            </div>
-            <div className="food-item">
-              <h3>Oysters</h3>
-              <img src="/Oysters.jpg" alt="Clam Chowder" />
-            </div>
-            <div className="food-item">
-              <h3>Steak</h3>
-              <img src="/Steak.jpg" alt="Steak" />
-            </div>
-          </div>
-          <div className="order-cta">
-            <a href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="order-now-btn">Order Now</a>
-          </div>
-        </CarouselSection>
+          
 
         <CateringSection>
           <div className="content">
             {/* Left: text content */}
             <div className="text-content">
+        
               <h2>Catering Services</h2>
               <div className="subheading">
                 Professional on-site catering for every occasion
@@ -1017,6 +1112,7 @@ export default function HomePage() {
           </div>
         </Section>
 
+        <Calendar onEasterEggTrigger={triggerEasterEgg} />
 
           <WebcamSection>
       <h2>Live Webcam</h2>
