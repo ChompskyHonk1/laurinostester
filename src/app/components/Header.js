@@ -564,9 +564,9 @@ export default function Header() {
   const handleLogoMouseEnter = () => setShowLeaves(true);
   const handleLogoMouseLeave = () => setShowLeaves(false);
 
-  // Toggle the pumpkin into a lit jack-o'-lantern without navigating away.
-  // On any other page the pumpkin is part of the brand link, so we let the
-  // click bubble up and return the visitor to the homepage instead.
+  // The pumpkin is a light switch, never a link: it always toggles the
+  // jack-o'-lantern and stops the click from reaching the brand link. Only the
+  // "Laurino's Tavern" name takes you home.
   const isHomePage = () => {
     if (typeof window === "undefined") return false;
     const p = window.location.pathname;
@@ -574,7 +574,6 @@ export default function Header() {
   };
 
   const handlePumpkinClick = (e) => {
-    if (!isHomePage()) return; // let the click reach the Link and navigate home
     e.preventDefault();
     e.stopPropagation();
     setLit((prev) => !prev);
@@ -584,11 +583,7 @@ export default function Header() {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       e.stopPropagation();
-      if (isHomePage()) {
-        setLit((prev) => !prev);
-      } else {
-        window.location.href = "/";
-      }
+      setLit((prev) => !prev);
     }
   };
 

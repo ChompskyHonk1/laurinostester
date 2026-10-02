@@ -16,6 +16,10 @@ const ChaferViewer = dynamic(() => import("./ChaferViewer"), {
 const PHONE = "(508) 896-6135";
 const FALLBACK_IMG = "/Pizza.png";
 
+// In-progress party plans are saved here so a reload or an accidental
+// navigation away doesn't lose them. Cleared once a request is submitted.
+const PARTY_DRAFT_KEY = "laurinos.partyDraft.v1";
+
 /* ------------------------------------------------------------------ helpers */
 
 function fmtCents(cents) {
@@ -547,7 +551,8 @@ export default function PartiesPage() {
   const [duration, setDuration] = useState(3);
   const [guests, setGuests] = useState("");
 
-  const [roomChoice, setRoomChoice] = useState(null); // null | 'none' | roomId
+  const [roomIds, setRoomIds] = useState([]); // selected room ids (multi-select)
+  const [noRoom, setNoRoom] = useState(false); // catering pickup, exclusive with rooms
   const [items, setItems] = useState({}); // itemId -> qty
 
   const [chaferOpen, setChaferOpen] = useState(false); // mobile 3D overlay
@@ -561,14 +566,14 @@ export default function PartiesPage() {
 
   useEffect(() => setMounted(true), []);
 
-  // To-go orders (no room) never have tablecloths or a hosted bar.
+  // Catering pickup (no room) never has tablecloths or a hosted bar.
   useEffect(() => {
-    if (roomChoice === "none") {
+    if (noRoom) {
       setTablecloth("wood");
       setBarMode("none");
       setSodaPitchers({});
     }
-  }, [roomChoice]);
+  }, [noRoom]);
 
   const [quote, setQuote] = useState(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
@@ -579,6 +584,55 @@ export default function PartiesPage() {
   const [submitted, setSubmitted] = useState(null); // { reference }
 
   const quoteTimer = useRef(null);
+  const draftApplied = useRef(false);
+
+  // Restore an in-progress plan from localStorage, once. Runs after the config
+  // (and its default date) is set, so the saved values win. Everything the
+  // visitor typed — guests, room, menu, drinks, contact, even the step they
+  // were on — comes back exactly as they left it.
+  const applyDraft = useCallback(() => {
+    if (draftApplied.current) return;
+    draftApplied.current = true;
+    if (typeof window === "undefined") return;
+    let raw = null;
+    try {
+      raw = window.localStorage.getItem(PARTY_DRAFT_KEY);
+    } catch {
+      return;
+    }
+    if (!raw) return;
+    let d = null;
+    try {
+      d = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    if (!d || d.v !== 1) return;
+    if (typeof d.step === "number") setStep(Math.min(3, Math.max(0, d.step)));
+    if (typeof d.date === "string" && d.date) setDate(d.date);
+    if (typeof d.hour === "number") setHour(d.hour);
+    if (typeof d.duration === "number") setDuration(d.duration);
+    if (typeof d.guests === "string") setGuests(d.guests);
+    if (Array.isArray(d.roomIds)) setRoomIds(d.roomIds);
+    if (typeof d.noRoom === "boolean") setNoRoom(d.noRoom);
+    // Back-compat with the older single-choice draft shape.
+    if (d.roomChoice !== undefined && !Array.isArray(d.roomIds)) {
+      if (d.roomChoice === "none") {
+        setNoRoom(true);
+      } else if (d.roomChoice) {
+        setRoomIds([d.roomChoice]);
+      }
+    }
+    if (d.items && typeof d.items === "object") setItems(d.items);
+    if (typeof d.tablecloth === "string") setTablecloth(d.tablecloth);
+    if (typeof d.barMode === "string") setBarMode(d.barMode);
+    if (typeof d.barBudgetCents === "number") setBarBudgetCents(d.barBudgetCents);
+    if (typeof d.barPackage === "string") setBarPackage(d.barPackage);
+    if (d.sodaPitchers && typeof d.sodaPitchers === "object") setSodaPitchers(d.sodaPitchers);
+    if (d.contact && typeof d.contact === "object") {
+      setContact((prev) => ({ ...prev, ...d.contact }));
+    }
+  }, []);
 
   /* ---- load config (retryable) ---- */
   const loadConfig = useCallback(() => {
@@ -588,6 +642,7 @@ export default function PartiesPage() {
       .then((r) => {
         setConfig(r.data);
         setDate(todayISO(r.data.lead_days ?? 7));
+        applyDraft();
       })
       .catch((e) => {
         // Keep the human-facing panel simple, but leave the real cause in the
@@ -596,14 +651,60 @@ export default function PartiesPage() {
         setLoadError(e.message || "Could not load party details");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [applyDraft]);
+
+  // Persist the draft on every meaningful change so nothing is lost if the
+  // visitor navigates away or reloads. Skipped after a successful submit.
+  useEffect(() => {
+    if (!config || submitted) return;
+    const draft = {
+      v: 1,
+      step,
+      date,
+      hour,
+      duration,
+      guests,
+      roomIds,
+      noRoom,
+      items,
+      tablecloth,
+      barMode,
+      barBudgetCents,
+      barPackage,
+      sodaPitchers,
+      contact,
+      savedAt: Date.now(),
+    };
+    try {
+      window.localStorage.setItem(PARTY_DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      /* storage unavailable (private mode) — remembering is best-effort */
+    }
+  }, [
+    config,
+    submitted,
+    step,
+    date,
+    hour,
+    duration,
+    guests,
+    roomIds,
+    noRoom,
+    items,
+    tablecloth,
+    barMode,
+    barBudgetCents,
+    barPackage,
+    sodaPitchers,
+    contact,
+  ]);
 
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
 
   /* ---- debounced quote ---- */
-  const roomIdForQuote = roomChoice && roomChoice !== "none" ? roomChoice : null;
+  const roomIdForQuote = roomIds[0] || null;
   const guestsInt = parseInt(guests, 10) || 0;
 
   useEffect(() => {
@@ -633,7 +734,14 @@ export default function PartiesPage() {
   const q = quote;
   const rooms = (q && q.rooms) || [];
   const availableRooms = rooms.filter((r) => r.available);
-  const selectedRoom = rooms.find((r) => r.id === roomChoice) || null;
+  const selectedRooms = rooms.filter((r) => roomIds.includes(r.id));
+  const selectedRoom = selectedRooms[0] || null;
+  // Display label for the summary and confirmation — multiple rooms join with " + ".
+  const roomLabel = noRoom
+    ? "No room (pickup)"
+    : selectedRooms.length
+    ? selectedRooms.map((r) => r.name).join(" + ")
+    : "—";
   const minimumCents = q && q.minimum_cents != null ? q.minimum_cents : null;
   const itemSubtotalCents = q ? q.item_subtotal_cents : 0;
   const itemTotalCents = q ? q.item_total_cents : 0;
@@ -641,7 +749,7 @@ export default function PartiesPage() {
   const withinLead = q ? q.within_lead : false;
   const overMaxGuests = q ? q.over_max_guests : false;
 
-  const inHouse = Boolean(roomChoice && roomChoice !== "none");
+  const inHouse = roomIds.length > 0;
   const selectedCloth = TABLECLOTHS.find((t) => t.id === tablecloth) || TABLECLOTHS[0];
   const clothCents = inHouse ? selectedCloth.priceCents : 0;
   const selectedBarPackage = BAR_PACKAGES.find((p) => p.id === barPackage) || BAR_PACKAGES[0];
@@ -694,7 +802,7 @@ export default function PartiesPage() {
   }, [config, items]);
 
   const detailsValid = Boolean(date && hour != null && guestsInt >= 1 && guestsInt <= (config?.max_guests_hard ?? 200));
-  const roomValid = roomChoice !== null;
+  const roomValid = noRoom || roomIds.length > 0;
   const phoneInput = contact.phone.trim();
   const phoneValid = !phoneInput || normalisePhone(phoneInput) !== null;
   const contactValid = Boolean(
@@ -725,6 +833,20 @@ export default function PartiesPage() {
     });
   }, []);
 
+  // Rooms are multi-select: adding one never replaces the others. Picking a
+  // room clears "no room"; picking "no room" clears every room.
+  const toggleRoom = useCallback((id) => {
+    setNoRoom(false);
+    setRoomIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }, []);
+
+  const chooseNoRoom = useCallback(() => {
+    setNoRoom(true);
+    setRoomIds([]);
+  }, []);
+
   const canNext = (s) => {
     if (s === 0) return detailsValid;
     if (s === 1) return roomValid;
@@ -748,6 +870,13 @@ export default function PartiesPage() {
       const clothNote = inHouse
         ? `Tablecloths: ${selectedCloth.name}${selectedCloth.priceCents ? ` (+${fmtCents(selectedCloth.priceCents)})` : ""}`
         : "";
+      // All chosen rooms go in the note; room_id stays the primary (first)
+      // room for the server model, and a manager confirms the combination.
+      const roomNote = inHouse
+        ? `Rooms: ${selectedRooms.map((r) => r.name).join(", ")}`
+        : noRoom
+        ? "Room: None — catering pickup"
+        : "";
       const barNote =
         inHouse && barMode === "open"
           ? `Bar: Open bar — ${selectedBarPackage.name} — ${fmtCents(barBudgetCents)} tab`
@@ -765,7 +894,7 @@ export default function PartiesPage() {
         name: contact.name,
         email: contact.email,
         phone: normalisePhone(contact.phone) || "",
-        details: [contact.details, clothNote, barNote, pitcherNote].filter(Boolean).join("\n\n"),
+        details: [contact.details, roomNote, clothNote, barNote, pitcherNote].filter(Boolean).join("\n\n"),
         website: contact.website,
         date,
         hour,
@@ -779,6 +908,13 @@ export default function PartiesPage() {
       const r = await submitParty(payload);
       if (r.ok) {
         setSubmitted({ reference: r.data.reference });
+        // The plan is in — don't restore it next visit.
+        try {
+          window.localStorage.removeItem(PARTY_DRAFT_KEY);
+        } catch {
+          /* ignore */
+        }
+        draftApplied.current = true;
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         setSubmitError(r.error || "Could not send your request.");
@@ -838,7 +974,7 @@ export default function PartiesPage() {
   }
 
   if (submitted) {
-    return <Confirmation reference={submitted.reference} date={date} hour={hour} guests={guestsInt} roomName={selectedRoom?.name} phone={config.phone} />;
+    return <Confirmation reference={submitted.reference} date={date} hour={hour} guests={guestsInt} roomName={roomLabel === "—" ? undefined : roomLabel} phone={config.phone} />;
   }
 
   return (
@@ -945,8 +1081,8 @@ export default function PartiesPage() {
             <StepHeader>
               <StepNum>2</StepNum>
               <div>
-                <h2>Pick a room</h2>
-                <p>Hidden rooms are unavailable for that date.</p>
+                <h2>Pick your room(s)</h2>
+                <p>Tap to add more than one room. Hidden rooms are unavailable for that date.</p>
               </div>
             </StepHeader>
 
@@ -954,9 +1090,9 @@ export default function PartiesPage() {
               <RoomCard
                 role="button"
                 tabIndex={0}
-                $selected={roomChoice === "none"}
-                onClick={() => setRoomChoice("none")}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setRoomChoice("none")}
+                $selected={noRoom}
+                onClick={chooseNoRoom}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && chooseNoRoom()}
               >
                 <div className="room-img room-img--none">
                   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
@@ -970,7 +1106,7 @@ export default function PartiesPage() {
                   <p>Catering pickup — no room needed at all.</p>
                   <div className="room-min">No room minimum</div>
                 </div>
-                  <CheckMark $visible={roomChoice === "none"} />
+                  <CheckMark $visible={noRoom} />
                 </RoomCard>
 
               {availableRooms.map((r) => (
@@ -978,9 +1114,9 @@ export default function PartiesPage() {
                   key={r.id}
                   role="button"
                   tabIndex={0}
-                  $selected={roomChoice === r.id}
-                  onClick={() => setRoomChoice(r.id)}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setRoomChoice(r.id)}
+                  $selected={roomIds.includes(r.id)}
+                  onClick={() => toggleRoom(r.id)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggleRoom(r.id)}
                 >
                   <div className="room-img">
                     <img src={roomImage(r)} alt={r.name} onError={(e) => (e.target.src = FALLBACK_IMG)} />
@@ -998,16 +1134,17 @@ export default function PartiesPage() {
                       )}
                     </div>
                   </div>
-                  <CheckMark $visible={roomChoice === r.id} />
+                  <CheckMark $visible={roomIds.includes(r.id)} />
                 </RoomCard>
               ))}
             </RoomGrid>
 
-            {roomChoice && roomChoice !== "none" && selectedRoom && selectedRoom.minimum_cents != null && (
+            {inHouse && selectedRoom && selectedRoom.minimum_cents != null && (
               <MinExplain>
-                The {selectedRoom.name} has a {fmtCents(selectedRoom.minimum_cents)}/hour minimum on an{" "}
-                {hour >= 16 ? "evening" : "afternoon"}. That&apos;s what your party
-                spends on food and drink — <strong>not a fee on top.</strong> Most parties of this
+                {selectedRooms.length > 1
+                  ? `The ${selectedRoom.name} — and each extra room — carries a ${fmtCents(selectedRoom.minimum_cents)}/hour minimum on an ${hour >= 16 ? "evening" : "afternoon"}. A manager confirms the combined minimums. That's spend on food and drink, `
+                  : `The ${selectedRoom.name} has a ${fmtCents(selectedRoom.minimum_cents)}/hour minimum on an ${hour >= 16 ? "evening" : "afternoon"}. That's what your party spends on food and drink — `}
+                <strong>not a fee on top.</strong> Most parties of this
                 size clear it without trying.
               </MinExplain>
             )}
@@ -1210,12 +1347,12 @@ export default function PartiesPage() {
             </SummaryLine>
             <SummaryLine>
               <span>Room</span>
-              <strong>{roomChoice === "none" ? "No room" : selectedRoom ? selectedRoom.name : "—"}</strong>
+              <strong>{roomLabel}</strong>
             </SummaryLine>
 
             <Divider />
 
-            {roomChoice !== "none" && minimumCents != null && (
+            {inHouse && minimumCents != null && (
               <SummaryLine>
                 <span>Room minimum</span>
                 <strong>{fmtCents(minimumCents)} / hr</strong>
@@ -1278,7 +1415,7 @@ export default function PartiesPage() {
               <strong>{fmtCents(displayedTotalCents)}</strong>
             </SummaryLine>
 
-            {minimumCents != null && roomChoice !== "none" && (
+            {minimumCents != null && inHouse && (
               <MinimumNote>
                 {spendCents >= minimumCents ? (
                   <>
@@ -1446,7 +1583,11 @@ function Confirmation({ reference, date, hour, guests, roomName, phone }) {
         <h2>Reference {reference}</h2>
         <p>
           Your request for <strong>{prettyDate(date)}</strong> at <strong>{prettyHour(hour)}</strong>
-          {roomName ? ` in the ${roomName}` : ""}
+          {roomName
+            ? roomName.startsWith("No room")
+              ? ` — ${roomName}`
+              : ` in the ${roomName}`
+            : ""}
           {guests ? `, ${guests} guest${guests === 1 ? "" : "s"}` : ""}.
         </p>
         <div className="blunt">
