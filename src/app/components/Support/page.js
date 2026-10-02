@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import emailjs from "emailjs-com";
+import { submitContact } from "./contactApi";
+import { normalisePhone } from "../../utils/phone";
 
 export default function SupportPage() {
   const [formData, setFormData] = useState({
@@ -15,65 +16,60 @@ export default function SupportPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [formError, setFormError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [openFAQ, setOpenFAQ] = useState(null);
-
-  // Initialize EmailJS
-  useEffect(() => {
-    emailjs.init("aeG2vJZ7bnOk3l7oF"); // Replace with your actual EmailJS user ID
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    if (name === "phone") setPhoneError("");
+    setFormData((prevState) => ({
       ...prevState,
       [name]: value
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setFormError("");
-    
-    // Prepare template parameters for EmailJS
-    const templateParams = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      subject: formData.subject,
-      message: formData.message
-    };
+    setPhoneError("");
 
-    emailjs
-      .send(
-        "service_x69mezl", // Replace with your EmailJS service ID
-        "template_x8u2b24", // Replace with your EmailJS template ID for support inquiries
-        templateParams
-      )
-      .then(
-        (result) => {
-          console.log("Email successfully sent!", result.text);
-          setShowNotification(true);
-          setIsSubmitting(false);
-          setFormData({
-            name: "",
-            email: "",
-            phone: "",
-            subject: "",
-            message: ""
-          });
-          
-          // Hide notification after 5 seconds
-          setTimeout(() => {
-            setShowNotification(false);
-          }, 5000);
-        },
-        (error) => {
-          console.error("Failed to send email:", error.text);
-          setFormError("There was a problem submitting your inquiry. Please try again or call us directly.");
-          setIsSubmitting(false);
-        }
+    const phone = formData.phone.trim();
+    const normalised = phone ? normalisePhone(phone) : null;
+    if (phone && !normalised) {
+      setPhoneError("That phone number doesn't look right — use 10 digits, e.g. (508) 555-0123.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await submitContact({
+        name: formData.name,
+        email: formData.email,
+        phone: normalised || "",
+        subject: formData.subject,
+        message: formData.message
+      });
+      setShowNotification(true);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: ""
+      });
+
+      // Hide notification after a few seconds
+      setTimeout(() => {
+        setShowNotification(false);
+      }, 6000);
+    } catch (err) {
+      setFormError(
+        err?.message ||
+          "There was a problem submitting your inquiry. Please try again or call us directly."
       );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Toggle FAQ accordion
@@ -174,7 +170,9 @@ export default function SupportPage() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Your Phone Number" 
+                aria-invalid={phoneError ? "true" : undefined}
               />
+              {phoneError && <FieldError>{phoneError}</FieldError>}
             </FormGroup>
             
             <FormGroup>
@@ -215,7 +213,8 @@ export default function SupportPage() {
           
           {showNotification && (
             <SuccessNotification>
-              Thank you for your message! We'll be in touch with you shortly.
+              Thanks for reaching out — we&apos;ve got your message and someone will be back to
+              you soon. If it&apos;s urgent, call us at (508) 896-6135.
             </SuccessNotification>
           )}
         </FormContainer>
@@ -460,6 +459,12 @@ const SubmitButton = styled.button`
     cursor: not-allowed;
     transform: none;
   }
+`;
+
+const FieldError = styled.p`
+  color: #d32f2f;
+  font-size: 0.85rem;
+  margin: 0.4rem 0 0;
 `;
 
 const ErrorNotification = styled.div`

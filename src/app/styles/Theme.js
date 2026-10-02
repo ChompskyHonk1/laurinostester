@@ -5,10 +5,10 @@ const Theme = {
     // Light mode colors - enhanced modern palette
     primaryDark: '#8B7355', // warmer, richer brown
     secondaryDark: '#A68B6B', // complementary lighter brown
-    tertiaryDark: '#2C5F7C', // deeper ocean blue
+    tertiaryDark: '#3A5666', // Harbor Navy - primary brand blue
     primaryLight: '#ffffff',
-    bluePastel: '#7FA7B8', // more sophisticated pastel blue
-    lighterBlue: '#A8C4D4', // lighter, more elegant blue
+    bluePastel: '#3A5666', // Harbor Navy (unified - no light blue)
+    lighterBlue: '#3A5666', // Harbor Navy (unified - no light blue)
     background: '#FAF8F5', // warmer off-white
     accent: '#E8DFD3', // subtle accent color
     highlight: '#D4A574', // warm highlight color

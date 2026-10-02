@@ -280,7 +280,7 @@ const CTAButton = styled.button`
   text-decoration: none;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.bluePastel};
+    background: #2C4553; /* darker Harbor Navy for hover feedback */
   }
 `;
 

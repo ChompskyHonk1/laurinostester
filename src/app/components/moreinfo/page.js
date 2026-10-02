@@ -2,9 +2,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import emailjs from "@emailjs/browser";
+import { normalisePhone } from "../../utils/phone";
 
 export default function More() {
   const [showNotification, setShowNotification] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
 
   // Update hidden time input when dropdowns change
   const updateTimeInput = (hour, minute, period) => {
@@ -28,7 +30,20 @@ export default function More() {
   // Form submission handler (reusing your emailjs config)
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+    setPhoneError("");
+
+    // Send the phone as E.164 so downstream texting/CRM tooling can use it.
+    const phoneField = e.target.elements?.phone;
+    const rawPhone = (phoneField?.value || "").trim();
+    if (rawPhone) {
+      const normalised = normalisePhone(rawPhone);
+      if (!normalised) {
+        setPhoneError("That phone number doesn't look right — use 10 digits, e.g. (508) 555-0123.");
+        return;
+      }
+      phoneField.value = normalised;
+    }
+
     // Debug: Log form data
     const formData = new FormData(e.target);
     console.log("Form Data:");
@@ -97,7 +112,9 @@ export default function More() {
             id="phone"
             name="phone"
             placeholder="Your Phone Number"
+            aria-invalid={phoneError ? "true" : undefined}
           />
+          {phoneError ? <FieldError>{phoneError}</FieldError> : null}
         </FormGroup>
 
         <FormGroup>
@@ -214,6 +231,12 @@ const HeaderWrapper = styled.div`
     font-size: 1.2rem;
     color: ${({ theme }) => theme.colors.secondaryDark};
   }
+`;
+
+const FieldError = styled.p`
+  color: #d32f2f;
+  font-size: 0.85rem;
+  margin: 0.4rem 0 0;
 `;
 
 const FormContainer = styled.form`

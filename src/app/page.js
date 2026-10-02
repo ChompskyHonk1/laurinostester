@@ -73,16 +73,28 @@ const HeroSection = styled.section`
     line-height: 1.6;
   }
 
-  .hero-cta {
+  /* Two clear paths: order takeout, or book a party. */
+  .hero-actions {
     margin-top: 2rem;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.75rem 1.5rem;
     background-color: ${({ theme }) => theme.colors.primaryLight};
     color: ${({ theme }) => theme.colors.primaryDark};
     text-decoration: none;
     border-radius: 4px;
     font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: 2px solid ${({ theme }) => theme.colors.primaryLight};
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
     position: relative;
     overflow: hidden;
 
@@ -100,12 +112,29 @@ const HeroSection = styled.section`
     }
 
     &:hover {
-      background-color: ${({ theme }) => theme.colors.lighterBlue};
+      background-color: ${({ theme }) => theme.colors.tertiaryDark};
+      color: ${({ theme }) => theme.colors.primaryLight};
       transform: translateY(-2px);
       
       &::before {
         left: 100%;
       }
+    }
+  }
+
+  /* "Book a Party" reads as an equal choice, not a lesser one. */
+  .hero-cta.secondary {
+    background-color: transparent;
+    color: ${({ theme }) => theme.colors.primaryLight};
+    border-color: ${({ theme }) => theme.colors.primaryLight};
+
+    &::before {
+      display: none;
+    }
+
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.primaryLight};
+      color: ${({ theme }) => theme.colors.primaryDark};
     }
   }
 
@@ -140,7 +169,15 @@ const HeroSection = styled.section`
       line-height: 1.4;
     }
     
+    .hero-actions {
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    
     .hero-cta {
+      width: 100%;
+      max-width: 320px;
       padding: 0.8rem 1.5rem;
       font-size: 0.95rem;
       min-height: 48px;
@@ -197,6 +234,14 @@ const AboutSection = styled.section`
     .about-content {
       padding-right: 0;
       margin-bottom: 2rem;
+    }
+  }
+
+  /* Keep the about image natural-sized and non-distorted on small screens */
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    .about-image img {
+      height: auto;
+      width: 100%;
     }
   }
 `;
@@ -482,6 +527,14 @@ const CateringSection = styled.section`
       order: 1;
       margin-bottom: 2rem; /* space between image and text */
       overflow: hidden;
+      min-width: 0;
+    }
+
+    /* Prevent the large catering SVG from overflowing on tablet */
+    .image-container img,
+    .image-container svg {
+      max-width: 100%;
+      height: auto;
     }
   }
 
@@ -489,7 +542,8 @@ const CateringSection = styled.section`
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
     .image-container img,
     .image-container svg {
-      max-width: 140%; 
+      max-width: 100%;
+      width: 100%;
       gap: 1rem;
       height: auto;   /* remove fixed height to prevent overflow */
     }
@@ -546,7 +600,7 @@ const Section = styled.section`
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
     &:hover {
-      background: ${({ theme }) => theme.colors?.lighterBlue || '#cce0ff'};
+      background: ${({ theme }) => theme.colors?.lighterBlue || '#3A5666'};
       color: ${({ theme }) => theme.colors?.primaryLight || '#fff'};
       transform: translateY(-8px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -942,7 +996,17 @@ export default function HomePage() {
           <div className="hero-content">
             <h1>Welcome to Laurino&apos;s Tavern</h1>
             <p>Serving up local favorites on Cape Cod for generations</p>
-        <a href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="hero-cta">Order Now</a>
+            <div className="hero-actions">
+              <a
+                href="https://www.clover.com/online-ordering/laurinos-tavern-brewster"
+                className="hero-cta"
+              >
+                Order To Go
+              </a>
+              <Link href="/parties" className="hero-cta secondary">
+                Book a Party
+              </Link>
+            </div>
           </div>
         </HeroSection>
         {/* Try Our Favorites Carousel Section */}

@@ -189,6 +189,12 @@ export const CartModal = styled.div`
       }
     }
   }
+
+  /* Full-width slide-in drawer on mobile so it never overflows the viewport */
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    width: 100%;
+    padding: 1.5rem 1.25rem;
+  }
 `;
 
 const CartContext = createContext();

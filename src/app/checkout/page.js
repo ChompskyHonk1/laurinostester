@@ -345,7 +345,7 @@ export default function CheckoutPage() {
     },
     rules: {
       '.Input': {
-        borderColor: '#9fbad0', // tertiaryDark
+        borderColor: '#3A5666', // Harbor Navy
       },
       '.Input:focus': {
         borderColor: '#234262', // primaryDark

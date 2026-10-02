@@ -1,126 +1,78 @@
-import { Client } from '@notionhq/client';
+// Public calendar feed for laurinostavern.com.
+//
+// Source of truth is the Supabase `events` table, managed from the dashboard.
+// RLS only exposes visibility='public' events to the anon key, so private and
+// employee events never leave the building. The response keeps the shape the
+// calendar component already renders: { id, title, date, time, description, type }.
 
-const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
-});
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://uumrgsdkeqagmkoedfow.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bXJnc2RrZXFhZ21rb2VkZm93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYzODYsImV4cCI6MjA5NDI1MjM4Nn0.9M2eGZ1KwEw0Ooo-ligIpSbzzcTE8XUf3PLkisVwCt8";
+
+export const dynamic = "force-dynamic";
+
+function toDateAndTime(startAt, allDay) {
+  const d = new Date(startAt);
+  // Noon, not a bare YYYY-MM-DD: the calendar component does new Date(date),
+  // and a date-only string parses as UTC midnight — which shows a day early in
+  // US timezones.
+  const ymd = d.toLocaleDateString("en-CA", { timeZone: "America/New_York" }); // YYYY-MM-DD
+  const time = allDay
+    ? "All Day"
+    : d.toLocaleTimeString("en-US", {
+        timeZone: "America/New_York",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+  return { date: `${ymd}T12:00:00`, time };
+}
 
 export async function GET() {
   try {
-    if (!process.env.NOTION_API_KEY || !process.env.NOTION_DATABASE_ID) {
-      // Return mock data if Notion is not configured
-      const mockEvents = [
-        {
-          id: '1',
-          title: 'Live Music Night',
-          date: '2025-10-10',
-          time: '7:00 PM',
-          description: 'Join us for an evening of live local music!',
-          type: 'music'
-        },
-        {
-          id: '2',
-          title: 'Trivia Night',
-          date: '2025-10-12',
-          time: '8:00 PM',
-          description: 'Test your knowledge and win prizes!',
-          type: 'event'
-        },
-        {
-          id: '3',
-          title: 'Wine Tasting Event',
-          date: '2025-10-15',
-          time: '6:00 PM',
-          description: 'Sample our finest wine selection.',
-          type: 'event'
-        },
-        {
-          id: '4',
-          title: 'Acoustic Session',
-          date: '2025-10-18',
-          time: '7:30 PM',
-          description: 'Relax with acoustic performances by local artists.',
-          type: 'music'
-        },
-        {
-          id: '5',
-          title: 'Halloween Party',
-          date: '2025-10-31',
-          time: '8:00 PM',
-          description: 'Join us for our annual Halloween celebration!',
-          type: 'event'
-        }
-      ];
+    // A generous window: recent past (for the current month grid) through the
+    // next ~18 months.
+    const from = new Date(Date.now() - 90 * 86400000).toISOString();
+    const to = new Date(Date.now() + 550 * 86400000).toISOString();
 
-      return new Response(JSON.stringify({ events: mockEvents }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    const url =
+      `${SUPABASE_URL}/rest/v1/events` +
+      `?visibility=eq.public` +
+      `&start_at=gte.${encodeURIComponent(from)}` +
+      `&start_at=lte.${encodeURIComponent(to)}` +
+      `&select=id,title,description,location,start_at,end_at,all_day,kind,link_url` +
+      `&order=start_at.asc`;
 
-    const databaseId = process.env.NOTION_DATABASE_ID;
-    
-    // Query the Notion database for calendar events
-    const response = await notion.databases.query({
-      database_id: databaseId,
-      filter: {
-        property: 'Date',
-        date: {
-          is_not_empty: true,
-        },
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
-      sorts: [
-        {
-          property: 'Date',
-          direction: 'ascending',
-        },
-      ],
+      next: { revalidate: 300 },
     });
 
-    // Transform Notion data to calendar events
-    const events = response.results.map((page) => {
-      const properties = page.properties;
-      
+    if (!res.ok) return Response.json({ events: [] }, { status: 200 });
+
+    const rows = await res.json();
+    const events = (rows || []).map((r) => {
+      const { date, time } = toDateAndTime(r.start_at, r.all_day);
       return {
-        id: page.id,
-        title: properties.Title?.title?.[0]?.plain_text || 'Untitled Event',
-        date: properties.Date?.date?.start || '',
-        time: properties.Time?.rich_text?.[0]?.plain_text || '',
-        description: properties.Description?.rich_text?.[0]?.plain_text || '',
-        type: properties.Type?.select?.name || 'event',
+        id: r.id,
+        title: r.title,
+        date,
+        time,
+        description: r.description || "",
+        location: r.location || "",
+        link_url: r.link_url || "",
+        type: r.kind || "event",
       };
     });
 
-    return new Response(JSON.stringify({ events }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-  } catch (error) {
-    console.error('Error fetching calendar data:', error);
-    
-    // Return mock data on error
-    const mockEvents = [
-      {
-        id: '1',
-        title: 'Live Music Night',
-        date: '2025-10-10',
-        time: '7:00 PM',
-        description: 'Join us for an evening of live local music!',
-        type: 'music'
-      },
-      {
-        id: '2',
-        title: 'Trivia Night',
-        date: '2025-10-12',
-        time: '8:00 PM',
-        description: 'Test your knowledge and win prizes!',
-        type: 'event'
-      }
-    ];
-
-    return new Response(JSON.stringify({ events: mockEvents }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json({ events }, { status: 200 });
+  } catch {
+    // Never break the homepage over the calendar.
+    return Response.json({ events: [] }, { status: 200 });
   }
 }

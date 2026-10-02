@@ -110,7 +110,7 @@ const GlobalStyles = createGlobalStyle`
     }
 
     /* Prevent horizontal scroll on mobile */
-    body {
+    html, body {
       overflow-x: hidden;
       width: 100%;
     }

@@ -127,7 +127,7 @@ const EventsCarouselContainer = styled.section`
     }
 
     .event-date-display {
-      background: ${({ theme }) => theme.colors.lighterBlue};
+      background: ${({ theme }) => theme.colors.tertiaryDark};
       border-radius: 8px;
       padding: 0.75rem;
       margin-bottom: 1rem;
@@ -136,13 +136,13 @@ const EventsCarouselContainer = styled.section`
       .day {
         font-size: 1.5rem;
         font-weight: 700;
-        color: ${({ theme }) => theme.colors.primaryDark};
+        color: ${({ theme }) => theme.colors.primaryLight};
         display: block;
       }
 
       .month {
         font-size: 0.85rem;
-        color: ${({ theme }) => theme.colors.tertiaryDark};
+        color: ${({ theme }) => theme.colors.accent};
         text-transform: uppercase;
         letter-spacing: 1px;
       }

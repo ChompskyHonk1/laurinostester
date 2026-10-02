@@ -721,7 +721,7 @@ const SummaryText = styled.div`
 const ProgressBar = styled.div`
   width: 100%;
   height: 8px;
-  background: ${({ theme }) => theme.colors.lighterBlue};
+  background: ${({ theme }) => theme.colors.border};
   border-radius: 4px;
   overflow: hidden;
 `;

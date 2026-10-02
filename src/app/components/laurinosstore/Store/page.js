@@ -847,7 +847,7 @@ const SidebarItem = styled.div`
   padding: 0.8rem 1.2rem;
   cursor: pointer;
   font-weight: ${({ $active }) => ($active ? "700" : "500")};
-  color: ${({ $active, theme }) => ($active ? theme.colors.primaryDark : theme.colors.secondaryDark)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.primaryLight : theme.colors.secondaryDark)};
   background: ${({ $active, theme }) => ($active ? theme.colors.lighterBlue : "transparent")};
   border-radius: 8px;
   transition: all 0.2s ease;

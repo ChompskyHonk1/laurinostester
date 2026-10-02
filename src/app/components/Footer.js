@@ -45,7 +45,7 @@ const FooterContainer = styled.footer`
       transition: color 0.3s ease, transform 0.2s ease;
       
       &:hover {
-        color: ${({ theme }) => theme.colors.lighterBlue};
+        color: ${({ theme }) => theme.colors.accent};
         transform: translateY(-2px);
       }
     }
@@ -66,7 +66,7 @@ const FooterContainer = styled.footer`
       transition: color 0.3s ease, transform 0.2s ease;
       
       &:hover {
-        color: ${({ theme }) => theme.colors.lighterBlue};
+        color: ${({ theme }) => theme.colors.accent};
         transform: translateY(-1px);
       }
     }
@@ -84,7 +84,7 @@ const FooterContainer = styled.footer`
       transition: color 0.3s ease, transform 0.2s ease;
       
       &:hover {
-        color: ${({ theme }) => theme.colors.lighterBlue};
+        color: ${({ theme }) => theme.colors.accent};
         transform: translateY(-1px);
       }
     }

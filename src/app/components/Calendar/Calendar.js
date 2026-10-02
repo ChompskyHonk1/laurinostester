@@ -91,7 +91,7 @@ const CalendarContainer = styled.section`
     transition: background-color 0.3s ease;
 
     &:hover {
-      background: ${({ theme }) => theme.colors.lighterBlue};
+      background: ${({ theme }) => theme.colors.accent};
     }
 
     &.other-month {
@@ -101,12 +101,12 @@ const CalendarContainer = styled.section`
     }
 
     &.today {
-      background: ${({ theme }) => theme.colors.bluePastel};
+      background: ${({ theme }) => theme.colors.accent};
       font-weight: 600;
     }
 
     &.has-event {
-      background: ${({ theme }) => theme.colors.lighterBlue};
+      background: ${({ theme }) => theme.colors.accent};
       border: 2px solid ${({ theme }) => theme.colors.tertiaryDark};
     }
 
@@ -169,7 +169,7 @@ const CalendarContainer = styled.section`
       &:hover {
         transform: translateX(5px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        background: ${({ theme }) => theme.colors.lighterBlue};
+        background: ${({ theme }) => theme.colors.accent};
       }
 
       .event-title {
