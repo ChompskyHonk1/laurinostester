@@ -12,7 +12,6 @@ import {
   faPhone,
   faEnvelope,
   faBookOpen,
-  faStar,
   faGlassCheers
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -847,10 +846,6 @@ export default function Header() {
             <Link href="/components/Contact" className="nav-link" onClick={toggleMenu}>
               <FontAwesomeIcon icon={faEnvelope} className="menu-icon" />
               Contact
-            </Link>
-            <Link href="/feedback" className="nav-link" onClick={toggleMenu}>
-              <FontAwesomeIcon icon={faStar} className="menu-icon" />
-              Feedback
             </Link>
             <Link href="https://www.clover.com/online-ordering/laurinos-tavern-brewster" className="nav-link" onClick={toggleMenu}>
               <FontAwesomeIcon icon={faUtensils} className="menu-icon" />
