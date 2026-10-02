@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUtensils,
@@ -65,6 +65,21 @@ const HeaderContainer = styled.header`
     flex-direction: column;
     align-items: center;
     position: relative;
+  }
+
+  /* The brand link should not draw a box around the whole logo on click/tap.
+     Only keyboard focus shows a ring, and around the logo itself. */
+  .brand-link {
+    display: inline-block;
+    outline: none;
+  }
+  .brand-link:focus {
+    outline: none;
+  }
+  .brand-link:focus-visible .logo {
+    outline: 2px solid ${({ theme }) => theme.colors.accent || "#f8f3e9"};
+    outline-offset: 6px;
+    border-radius: 10px;
   }
   
   .logo-text {
@@ -538,18 +553,18 @@ const LeafOverlay = styled.div`
 // negative delay (so leaves are already mid-fall when the overlay appears),
 // and horizontal sway points that make each fall feel organic.
 const LEAVES = [
-  { left: 4,   size: 34, color: '#D94A1E', duration: 4.6, delay: -1.0, sway1: '10px',  sway2: '-14px', sway3: '12px',  sway4: '-8px' },
-  { left: 30,  size: 28, color: '#B91C1C', duration: 5.2, delay: -3.0, sway1: '-12px', sway2: '14px',  sway3: '-10px', sway4: '8px' },
-  { left: 56,  size: 42, color: '#D97706', duration: 5.7, delay: -1.8, sway1: '16px',  sway2: '-12px', sway3: '12px',  sway4: '-14px' },
-  { left: 82,  size: 30, color: '#8B4513', duration: 4.3, delay: -0.3, sway1: '-8px',  sway2: '12px',  sway3: '-14px', sway4: '8px' },
-  { left: 108, size: 40, color: '#C0392B', duration: 5.4, delay: -3.6, sway1: '12px',  sway2: '-16px', sway3: '10px',  sway4: '-10px' },
-  { left: 134, size: 32, color: '#EAB308', duration: 4.8, delay: -4.4, sway1: '-14px', sway2: '10px',  sway3: '-12px', sway4: '12px' },
-  { left: 158, size: 46, color: '#E8731A', duration: 5.9, delay: -1.4, sway1: '12px',  sway2: '-12px', sway3: '14px',  sway4: '-12px' },
-  { left: 182, size: 30, color: '#9B2C2C', duration: 4.4, delay: -2.3, sway1: '-10px', sway2: '16px',  sway3: '-10px', sway4: '10px' },
-  { left: 206, size: 38, color: '#D94A1E', duration: 5.0, delay: -0.6, sway1: '10px',  sway2: '-14px', sway3: '12px',  sway4: '-12px' },
-  { left: 228, size: 32, color: '#A0522D', duration: 5.5, delay: -5.0, sway1: '-12px', sway2: '10px',  sway3: '-16px', sway4: '8px' },
-  { left: 250, size: 36, color: '#D97706', duration: 4.6, delay: -2.5, sway1: '14px',  sway2: '-10px', sway3: '12px',  sway4: '-10px' },
-  { left: 272, size: 26, color: '#F2A65A', duration: 5.2, delay: -3.4, sway1: '-8px',  sway2: '12px',  sway3: '-10px', sway4: '8px' },
+  { left: 4,   size: 34, color: '#D94A1E', duration: 2.4, delay: -1.0, sway1: '10px',  sway2: '-14px', sway3: '12px',  sway4: '-8px' },
+  { left: 30,  size: 28, color: '#B91C1C', duration: 2.8, delay: -3.0, sway1: '-12px', sway2: '14px',  sway3: '-10px', sway4: '8px' },
+  { left: 56,  size: 42, color: '#D97706', duration: 3.1, delay: -1.8, sway1: '16px',  sway2: '-12px', sway3: '12px',  sway4: '-14px' },
+  { left: 82,  size: 30, color: '#8B4513', duration: 2.2, delay: -0.3, sway1: '-8px',  sway2: '12px',  sway3: '-14px', sway4: '8px' },
+  { left: 108, size: 40, color: '#C0392B', duration: 2.9, delay: -3.6, sway1: '12px',  sway2: '-16px', sway3: '10px',  sway4: '-10px' },
+  { left: 134, size: 32, color: '#EAB308', duration: 2.5, delay: -4.4, sway1: '-14px', sway2: '10px',  sway3: '-12px', sway4: '12px' },
+  { left: 158, size: 46, color: '#E8731A', duration: 3.2, delay: -1.4, sway1: '12px',  sway2: '-12px', sway3: '14px',  sway4: '-12px' },
+  { left: 182, size: 30, color: '#9B2C2C', duration: 2.3, delay: -2.3, sway1: '-10px', sway2: '16px',  sway3: '-10px', sway4: '10px' },
+  { left: 206, size: 38, color: '#D94A1E', duration: 2.6, delay: -0.6, sway1: '10px',  sway2: '-14px', sway3: '12px',  sway4: '-12px' },
+  { left: 228, size: 32, color: '#A0522D', duration: 2.9, delay: -5.0, sway1: '-12px', sway2: '10px',  sway3: '-16px', sway4: '8px' },
+  { left: 250, size: 36, color: '#D97706', duration: 2.4, delay: -2.5, sway1: '14px',  sway2: '-10px', sway3: '12px',  sway4: '-10px' },
+  { left: 272, size: 26, color: '#F2A65A', duration: 2.7, delay: -3.4, sway1: '-8px',  sway2: '12px',  sway3: '-10px', sway4: '8px' },
 ];
 
 export default function Header() {
@@ -560,9 +575,23 @@ export default function Header() {
   
   
   const toggleMenu = () => setMenuOpen(!menuOpen);
-  
-  const handleLogoMouseEnter = () => setShowLeaves(true);
-  const handleLogoMouseLeave = () => setShowLeaves(false);
+
+  const leavesTimer = useRef(null);
+  // A short, bounded leaf shower. The timeout matters on touch devices, where
+  // `mouseleave` may never fire and the shower would otherwise run forever.
+  const handleLogoMouseEnter = () => {
+    setShowLeaves(true);
+    if (leavesTimer.current) clearTimeout(leavesTimer.current);
+    leavesTimer.current = setTimeout(() => setShowLeaves(false), 2600);
+  };
+  const handleLogoMouseLeave = () => {
+    if (leavesTimer.current) clearTimeout(leavesTimer.current);
+    setShowLeaves(false);
+  };
+
+  useEffect(() => () => {
+    if (leavesTimer.current) clearTimeout(leavesTimer.current);
+  }, []);
 
   // The pumpkin is a light switch, never a link: it always toggles the
   // jack-o'-lantern and stops the click from reaching the brand link. Only the
@@ -619,6 +648,7 @@ export default function Header() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <Link
             href="/"
+            className="brand-link"
             style={{ textDecoration: 'none' }}
             onClick={handleLogoClick}
             onMouseEnter={handleLogoMouseEnter}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { getConfig, getQuote, submitParty } from "./partyApi";
 import { normalisePhone } from "../utils/phone";
 
@@ -49,11 +50,15 @@ function prettyDate(dateStr) {
   });
 }
 
-function prettyHour(hour) {
-  const h = ((hour % 24) + 24) % 24;
+// "18:30" -> "6:30pm" ("18:00" -> "6pm"). Used for the minute-level times.
+function prettyTime(value) {
+  if (typeof value !== "string" || !value.includes(":")) return "";
+  const [hStr, mStr] = value.split(":");
+  const h = ((parseInt(hStr, 10) % 24) + 24) % 24;
+  const m = parseInt(mStr, 10) || 0;
   const period = h >= 12 ? "pm" : "am";
   const hr = h % 12 === 0 ? 12 : h % 12;
-  return `${hr}${period}`;
+  return m === 0 ? `${hr}${period}` : `${hr}:${String(m).padStart(2, "0")}${period}`;
 }
 
 // catering_rooms has no image column, so room images are mapped locally by `key`
@@ -463,9 +468,6 @@ function DrinksPicker({
   );
 }
 
-const HOURS = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
-const DURATIONS = [2, 3, 4, 5];
-
 // In-house tablecloth options. "wood" means bare tables, no charge.
 const TABLECLOTHS = [
   { id: "wood", name: "No tablecloth", note: "Bare wood", swatch: "linear-gradient(135deg,#a9763f,#7c4f26)", priceCents: 0 },
@@ -547,8 +549,9 @@ export default function PartiesPage() {
   const [step, setStep] = useState(0);
 
   const [date, setDate] = useState(todayISO(7));
-  const [hour, setHour] = useState(18);
-  const [duration, setDuration] = useState(3);
+  // Times are "HH:MM" (24h) so guests can pick minutes, not just whole hours.
+  const [startTime, setStartTime] = useState("18:00");
+  const [endTime, setEndTime] = useState("21:00");
   const [guests, setGuests] = useState("");
 
   const [roomIds, setRoomIds] = useState([]); // selected room ids (multi-select)
@@ -586,6 +589,14 @@ export default function PartiesPage() {
   const quoteTimer = useRef(null);
   const draftApplied = useRef(false);
 
+  // Derived from the two time strings. The quote/server use whole hours
+  // (`hour`, `endHour`); the minutes ride along in display and notes.
+  const hour = parseInt(startTime.slice(0, 2), 10);
+  const minute = parseInt(startTime.slice(3, 5), 10) || 0;
+  const endHour = parseInt(endTime.slice(0, 2), 10);
+  const endMinute = parseInt(endTime.slice(3, 5), 10) || 0;
+  const isPickup = noRoom;
+
   // Restore an in-progress plan from localStorage, once. Runs after the config
   // (and its default date) is set, so the saved values win. Everything the
   // visitor typed — guests, room, menu, drinks, contact, even the step they
@@ -610,8 +621,15 @@ export default function PartiesPage() {
     if (!d || d.v !== 1) return;
     if (typeof d.step === "number") setStep(Math.min(3, Math.max(0, d.step)));
     if (typeof d.date === "string" && d.date) setDate(d.date);
-    if (typeof d.hour === "number") setHour(d.hour);
-    if (typeof d.duration === "number") setDuration(d.duration);
+    if (typeof d.startTime === "string") setStartTime(d.startTime);
+    if (typeof d.endTime === "string") setEndTime(d.endTime);
+    // Back-compat with the older whole-hour draft (hour + duration).
+    if (typeof d.startTime !== "string" && typeof d.hour === "number") {
+      setStartTime(`${String(d.hour).padStart(2, "0")}:00`);
+    }
+    if (typeof d.endTime !== "string" && typeof d.hour === "number" && typeof d.duration === "number") {
+      setEndTime(`${String((d.hour + d.duration) % 24).padStart(2, "0")}:00`);
+    }
     if (typeof d.guests === "string") setGuests(d.guests);
     if (Array.isArray(d.roomIds)) setRoomIds(d.roomIds);
     if (typeof d.noRoom === "boolean") setNoRoom(d.noRoom);
@@ -661,8 +679,8 @@ export default function PartiesPage() {
       v: 1,
       step,
       date,
-      hour,
-      duration,
+      startTime,
+      endTime,
       guests,
       roomIds,
       noRoom,
@@ -685,8 +703,8 @@ export default function PartiesPage() {
     submitted,
     step,
     date,
-    hour,
-    duration,
+    startTime,
+    endTime,
     guests,
     roomIds,
     noRoom,
@@ -801,6 +819,29 @@ export default function PartiesPage() {
     return out;
   }, [config, items]);
 
+  // Everything the visitor has on the wish list, in menu order — this powers the
+  // final review so they can check, change quantities, or remove before sending.
+  const selectedMenuLines = useMemo(() => {
+    if (!config?.menu) return [];
+    const out = [];
+    for (const group of config.menu) {
+      for (const item of group.items) {
+        const qty = items[item.id] || 0;
+        if (qty > 0) {
+          out.push({
+            id: item.id,
+            name: item.name,
+            qty,
+            isMarket: Boolean(item.is_market_price) || item.price_cents == null,
+            priceCents: item.price_cents ?? 0,
+            group: group.category,
+          });
+        }
+      }
+    }
+    return out;
+  }, [config, items]);
+
   const detailsValid = Boolean(date && hour != null && guestsInt >= 1 && guestsInt <= (config?.max_guests_hard ?? 200));
   const roomValid = noRoom || roomIds.length > 0;
   const phoneInput = contact.phone.trim();
@@ -890,15 +931,23 @@ export default function PartiesPage() {
               .map((d) => `${d.qty} ${d.name}`)
               .join(", ")} — ${fmtCents(pitcherCents)}`
           : "";
+      // The server stores whole hours; the exact minutes go in the note so the
+      // manager sees e.g. "Pickup: 6:30pm".
+      const timeNote = isPickup
+        ? `Pickup time: ${prettyTime(startTime)}`
+        : `Start: ${prettyTime(startTime)} — End: ${prettyTime(endTime)}`;
       const payload = {
         name: contact.name,
         email: contact.email,
         phone: normalisePhone(contact.phone) || "",
-        details: [contact.details, roomNote, clothNote, barNote, pitcherNote].filter(Boolean).join("\n\n"),
+        details: [contact.details, roomNote, timeNote, clothNote, barNote, pitcherNote]
+          .filter(Boolean)
+          .join("\n\n"),
         website: contact.website,
         date,
         hour,
-        end_hour: (hour + duration) % 24,
+        // Pickup has no end time of its own; allow a sensible one-hour window.
+        end_hour: isPickup ? (hour + 1) % 24 : endHour,
         guests: guestsInt,
         room_id: roomIdForQuote,
         items: Object.entries(items)
@@ -928,8 +977,23 @@ export default function PartiesPage() {
 
   /* ---- render states ---- */
   if (loading) {
+    // Render the real hero while the config loads. This keeps the page's
+    // heading and intro in the static HTML for crawlers instead of shipping an
+    // empty spinner, and the visitor sees the offer immediately.
     return (
       <Page>
+        <Hero>
+          <div className="hero-inner">
+            <h1>Plan a party or catering order</h1>
+            <p>
+              Pick a room or catering pickup, build a wish list, and send us a request. No
+              payment up front — a manager calls you back to confirm the details and the price.
+            </p>
+            <a href="tel:+15088966135" className="hero-phone">
+              Or call {PHONE}
+            </a>
+          </div>
+        </Hero>
         <Loading>
           <Spinner />
           <p>Getting the party started…</p>
@@ -942,7 +1006,7 @@ export default function PartiesPage() {
     return (
       <Page>
         <ClosedPanel>
-          <h1>Party requests</h1>
+          <h1>Party &amp; catering requests</h1>
           <p>
             We couldn&apos;t load party details right now. Please try again, or give us a
             call at {PHONE}.
@@ -959,12 +1023,12 @@ export default function PartiesPage() {
     return (
       <Page>
         <Hero $slim>
-          <h1>Plan a private party</h1>
+          <h1>Plan a party or catering order</h1>
         </Hero>
         <ClosedPanel>
-          <h2>Party requests are currently closed</h2>
+          <h2>Party &amp; catering requests are currently closed</h2>
           <p>
-            We&apos;re not taking online party requests right now. Call us at{" "}
+            We&apos;re not taking online party or catering requests right now. Call us at{" "}
             <a href="tel:+15088966135">{config.phone || PHONE}</a> and we&apos;ll help you
             plan something.
           </p>
@@ -974,17 +1038,30 @@ export default function PartiesPage() {
   }
 
   if (submitted) {
-    return <Confirmation reference={submitted.reference} date={date} hour={hour} guests={guestsInt} roomName={roomLabel === "—" ? undefined : roomLabel} phone={config.phone} />;
+    return (
+      <Confirmation
+        reference={submitted.reference}
+        date={date}
+        timeLabel={
+          isPickup
+            ? `Pickup at ${prettyTime(startTime)}`
+            : `${prettyTime(startTime)} – ${prettyTime(endTime)}`
+        }
+        guests={guestsInt}
+        roomName={roomLabel === "—" ? undefined : roomLabel}
+        phone={config.phone}
+      />
+    );
   }
 
   return (
     <Page>
       <Hero>
         <div className="hero-inner">
-          <h1>Plan a private party</h1>
+          <h1>Plan a party or catering order</h1>
           <p>
-            Browse the rooms, build a catering wish list, and send us a request. No
-            payment up front — a manager calls you back to confirm.
+            Pick a room or catering pickup, build a wish list, and send us a request. No
+            payment up front — a manager calls you back to confirm the details and the price.
           </p>
           <a href="tel:+15088966135" className="hero-phone">
             Or call {config.phone || PHONE}
@@ -1029,6 +1106,30 @@ export default function PartiesPage() {
               </Notice>
             )}
 
+            <ServiceToggle role="group" aria-label="How are you getting the food?">
+              <button
+                type="button"
+                className={!isPickup ? "active" : ""}
+                aria-pressed={!isPickup}
+                onClick={() => setNoRoom(false)}
+              >
+                Hosted in a room
+                <span className="sub">Start &amp; end time</span>
+              </button>
+              <button
+                type="button"
+                className={isPickup ? "active" : ""}
+                aria-pressed={isPickup}
+                onClick={() => {
+                  setNoRoom(true);
+                  setRoomIds([]);
+                }}
+              >
+                Pickup / catering
+                <span className="sub">Pickup time only</span>
+              </button>
+            </ServiceToggle>
+
             <FieldGrid>
               <Field>
                 <label htmlFor="party-date">Date</label>
@@ -1041,25 +1142,36 @@ export default function PartiesPage() {
                 />
               </Field>
               <Field>
-                <label htmlFor="party-time">Start time</label>
-                <Select value={hour} onChange={(e) => setHour(parseInt(e.target.value, 10))}>
-                  {HOURS.map((h) => (
-                    <option key={h} value={h}>
-                      {prettyHour(h)}
-                    </option>
-                  ))}
-                </Select>
+                <label htmlFor="party-start">{isPickup ? "Pickup time" : "Start time"}</label>
+                <input
+                  id="party-start"
+                  type="time"
+                  step="900"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+                <p className="hint">Any time, minutes included.</p>
               </Field>
-              <Field>
-                <label htmlFor="party-duration">Rough end time</label>
-                <Select value={duration} onChange={(e) => setDuration(parseInt(e.target.value, 10))}>
-                  {DURATIONS.map((d) => (
-                    <option key={d} value={d}>
-                      About {d} hours ({prettyHour((hour + d) % 24)})
-                    </option>
-                  ))}
-                </Select>
-              </Field>
+              {!isPickup && (
+                <Field>
+                  <label htmlFor="party-end">End time</label>
+                  <input
+                    id="party-end"
+                    type="time"
+                    step="900"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  />
+                  <p className="hint">Ends {prettyTime(endTime)}.</p>
+                </Field>
+              )}
+              {isPickup && (
+                <Field>
+                  <span className="hint">
+                    Pickup orders only need a pickup time — no end time.
+                  </span>
+                </Field>
+              )}
               <Field>
                 <label htmlFor="party-guests">Guests</label>
                 <input
@@ -1119,7 +1231,13 @@ export default function PartiesPage() {
                   onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggleRoom(r.id)}
                 >
                   <div className="room-img">
-                    <img src={roomImage(r)} alt={r.name} onError={(e) => (e.target.src = FALLBACK_IMG)} />
+                    <Image
+                      src={roomImage(r)}
+                      alt={`${r.name} private party room at Laurino's Tavern`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 380px"
+                      style={{ objectFit: "cover" }}
+                    />
                   </div>
                   <div className="room-body">
                     <h3>{r.name}</h3>
@@ -1150,7 +1268,11 @@ export default function PartiesPage() {
             )}
 
             {inHouse && (
-              <>
+              <ExtrasDisclosure>
+                <summary>
+                  <span className="ed-title">Bar, drinks &amp; tablecloths</span>
+                  <span className="ed-sub">Optional — add now, or sort it out when we call</span>
+                </summary>
                 <TableclothPicker>
                   <h4>Tablecloths</h4>
                   <p>Dress the tables for your party — $4 each, or leave them bare wood.</p>
@@ -1168,7 +1290,7 @@ export default function PartiesPage() {
                   pitcherCount={pitcherCount}
                   pitcherCents={pitcherCents}
                 />
-              </>
+              </ExtrasDisclosure>
             )}
           </Step>
 
@@ -1178,7 +1300,7 @@ export default function PartiesPage() {
               <StepNum>3</StepNum>
               <div>
                 <h2>Build a wish list</h2>
-                <p>This is just a wish list — the kitchen doesn&apos;t cook from it.</p>
+                <p>Optional. Pick what sounds good — this is a wish list, not a final order.</p>
               </div>
             </StepHeader>
 
@@ -1201,7 +1323,13 @@ export default function PartiesPage() {
                       {groupItems.map((item) => (
                         <MenuItem key={item.id}>
                           <div className="item-img">
-                            <img src={itemImage(item)} alt={item.name} onError={(e) => (e.target.src = FALLBACK_IMG)} />
+                            <Image
+                              src={itemImage(item)}
+                              alt={item.name}
+                              fill
+                              sizes="84px"
+                              style={{ objectFit: "cover" }}
+                            />
                           </div>
                           <div className="item-info">
                             <div className="item-top">
@@ -1259,6 +1387,135 @@ export default function PartiesPage() {
                 <p>This is where you tell us the real story.</p>
               </div>
             </StepHeader>
+
+            <OrderReview>
+              <div className="or-head">
+                <h3>Your order so far</h3>
+                <button type="button" className="or-add" onClick={() => setStep(2)}>
+                  Add more items
+                </button>
+              </div>
+
+              {selectedMenuLines.length === 0 ? (
+                <p className="or-empty">
+                  No menu items yet —{" "}
+                  <button type="button" className="or-add" onClick={() => setStep(2)}>
+                    browse the menu
+                  </button>{" "}
+                  to add some.
+                </p>
+              ) : (
+                <ul className="or-list">
+                  {selectedMenuLines.map((line) => (
+                    <li key={line.id}>
+                      <div className="or-name">
+                        <span>{line.name}</span>
+                        <span className="or-unit">
+                          {line.isMarket ? "Market price" : `${fmtCents(line.priceCents)} each`}
+                        </span>
+                      </div>
+                      <div className="or-qty">
+                        <button
+                          type="button"
+                          aria-label={`Remove one ${line.name}`}
+                          onClick={() => setQty(line.id, -1)}
+                        >
+                          −
+                        </button>
+                        <span>{line.qty}</span>
+                        <button
+                          type="button"
+                          aria-label={`Add one ${line.name}`}
+                          onClick={() => setQty(line.id, 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <div className="or-price">
+                        {line.isMarket ? "Market" : fmtCents(line.priceCents * line.qty)}
+                      </div>
+                      <button
+                        type="button"
+                        className="or-del"
+                        aria-label={`Remove ${line.name}`}
+                        onClick={() =>
+                          setItems((prev) => {
+                            const copy = { ...prev };
+                            delete copy[line.id];
+                            return copy;
+                          })
+                        }
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="or-summary">
+                <div>
+                  <span>Service</span>
+                  <span>{isPickup ? "Pickup / catering" : "Hosted in a room"}</span>
+                </div>
+                <div>
+                  <span>{isPickup ? "Pickup" : "Time"}</span>
+                  <span>
+                    {isPickup
+                      ? prettyTime(startTime)
+                      : `${prettyTime(startTime)} – ${prettyTime(endTime)}`}
+                  </span>
+                </div>
+                <div>
+                  <span>Rooms</span>
+                  <span>{isPickup ? "None" : roomLabel === "—" ? "Not chosen yet" : roomLabel}</span>
+                </div>
+                {guestsInt > 0 && (
+                  <div>
+                    <span>Guests</span>
+                    <span>{guestsInt}</span>
+                  </div>
+                )}
+                {inHouse && selectedCloth.priceCents > 0 && (
+                  <div>
+                    <span>Tablecloths</span>
+                    <span>
+                      {selectedCloth.name} +{fmtCents(selectedCloth.priceCents)}
+                    </span>
+                  </div>
+                )}
+                {inHouse && barCents > 0 && (
+                  <div>
+                    <span>Bar</span>
+                    <span>{barSummary}</span>
+                  </div>
+                )}
+                {inHouse && pitcherCount > 0 && (
+                  <div>
+                    <span>Soda pitchers</span>
+                    <span>
+                      {pitcherCount} × {fmtCents(PITCHER_CENTS)}
+                    </span>
+                  </div>
+                )}
+                {q?.discount_amount_cents > 0 && (
+                  <div>
+                    <span>Party discount</span>
+                    <span>−{fmtCents(q.discount_amount_cents)}</span>
+                  </div>
+                )}
+                <div className="or-total">
+                  <span>Estimated total</span>
+                  <span>{fmtCents(displayedTotalCents)}</span>
+                </div>
+              </div>
+
+              <p className="or-note">
+                This is exactly what we&apos;ll see. Remove items here or add more above —
+                nothing is booked or charged until a manager confirms with you.
+              </p>
+            </OrderReview>
+
             <ContactForm onSubmit={handleSubmit}>
               <Field>
                 <label htmlFor="c-name">Your name</label>
@@ -1338,7 +1595,9 @@ export default function PartiesPage() {
             <SummaryLine>
               <span>Time</span>
               <strong>
-                {prettyHour(hour)} – {prettyHour((hour + duration) % 24)}
+                {isPickup
+                  ? `Pickup · ${prettyTime(startTime)}`
+                  : `${prettyTime(startTime)} – ${prettyTime(endTime)}`}
               </strong>
             </SummaryLine>
             <SummaryLine>
@@ -1501,7 +1760,7 @@ export default function PartiesPage() {
 
       {mounted && isMobile && (
         <>
-          {!chaferOpen && (
+          {!chaferOpen && step >= 1 && step <= 2 && (
             <MobileChaferBtn type="button" onClick={() => setChaferOpen(true)}>
               <span aria-hidden="true">▣</span>
               See your chafers
@@ -1572,7 +1831,7 @@ const STEPS = ["Details", "Room", "Menu", "Send"];
 
 /* ------------------------------------------------------------ subcomponents */
 
-function Confirmation({ reference, date, hour, guests, roomName, phone }) {
+function Confirmation({ reference, date, timeLabel, guests, roomName, phone }) {
   return (
     <Page>
       <Hero $slim>
@@ -1582,7 +1841,7 @@ function Confirmation({ reference, date, hour, guests, roomName, phone }) {
         <Badge>Request received</Badge>
         <h2>Reference {reference}</h2>
         <p>
-          Your request for <strong>{prettyDate(date)}</strong> at <strong>{prettyHour(hour)}</strong>
+          Your request for <strong>{prettyDate(date)}</strong> at <strong>{timeLabel}</strong>
           {roomName
             ? roomName.startsWith("No room")
               ? ` — ${roomName}`
@@ -1779,7 +2038,7 @@ const Layout = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     grid-template-columns: 1fr;
-    padding: 1.5rem 1rem 8rem;
+    padding: 1.5rem 1rem 9.5rem;
     max-width: 640px;
   }
 `;
@@ -1889,6 +2148,178 @@ const Field = styled.div`
 
 const Select = styled.select``;
 
+// Two-option segmented control: hosted (start + end) vs pickup (pickup time).
+const ServiceToggle = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+
+  button {
+    border: 2px solid ${({ theme }) => theme.colors.border};
+    background: ${({ theme }) => theme.colors.background};
+    color: ${({ theme }) => theme.colors.text};
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
+    padding: 0.7rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 56px;
+    line-height: 1.2;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+    &.active {
+      background: ${({ theme }) => theme.colors.tertiaryDark};
+      color: #fff;
+      border-color: ${({ theme }) => theme.colors.tertiaryDark};
+    }
+
+    .sub {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      opacity: 0.82;
+      margin-top: 0.2rem;
+    }
+  }
+`;
+
+// Final order review on the send step: itemized, editable, with the running total.
+const OrderReview = styled.section`
+  background: ${({ theme }) => theme.colors.accent};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  padding: 1.1rem 1.15rem;
+  margin-bottom: 1.5rem;
+
+  .or-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: ${({ theme }) => theme.colors.primaryDark};
+  }
+  .or-add {
+    background: none;
+    border: none;
+    padding: 0;
+    min-height: 0;
+    color: ${({ theme }) => theme.colors.tertiaryDark};
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .or-empty {
+    margin: 0 0 0.5rem;
+    color: ${({ theme }) => theme.colors.mutedText};
+  }
+  .or-empty .or-add {
+    color: ${({ theme }) => theme.colors.tertiaryDark};
+  }
+  .or-list {
+    list-style: none;
+    margin: 0 0 0.9rem;
+    padding: 0;
+  }
+  .or-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed ${({ theme }) => theme.colors.border};
+  }
+  .or-name {
+    flex: 1 1 52%;
+    display: flex;
+    flex-direction: column;
+  }
+  .or-unit {
+    font-size: 0.75rem;
+    color: ${({ theme }) => theme.colors.mutedText};
+  }
+  .or-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .or-qty button {
+    width: 30px;
+    height: 30px;
+    min-height: 0;
+    border-radius: 50%;
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    background: ${({ theme }) => theme.colors.background};
+    color: ${({ theme }) => theme.colors.text};
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .or-qty span {
+    min-width: 1.2rem;
+    text-align: center;
+    font-weight: 700;
+  }
+  .or-price {
+    margin-left: auto;
+    font-weight: 700;
+    color: ${({ theme }) => theme.colors.primaryDark};
+  }
+  .or-del {
+    background: none;
+    border: none;
+    min-height: 0;
+    padding: 0 0.15rem;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.mutedText};
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+  .or-del:hover {
+    color: #b91c1c;
+  }
+
+  .or-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+  .or-summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.92rem;
+  }
+  .or-summary > div > span:first-child {
+    color: ${({ theme }) => theme.colors.mutedText};
+  }
+  .or-summary .or-total {
+    border-top: 2px solid ${({ theme }) => theme.colors.border};
+    margin-top: 0.4rem;
+    padding-top: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: ${({ theme }) => theme.colors.primaryDark};
+  }
+  .or-summary .or-total > span:first-child {
+    color: inherit;
+  }
+  .or-note {
+    margin: 0.7rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: ${({ theme }) => theme.colors.mutedText};
+  }
+`;
+
 const Notice = styled.div`
   background: ${({ $tone, theme }) =>
     $tone === "warn" ? "#FBF3E4" : theme.colors.accent};
@@ -1932,6 +2363,7 @@ const RoomCard = styled.div`
   }
 
   .room-img {
+    position: relative;
     height: 150px;
     background: ${({ theme }) => theme.colors.accent};
 
@@ -2095,6 +2527,54 @@ const TableclothPicker = styled.div`
     margin: 0 0 0.85rem;
     font-size: 0.9rem;
     color: ${({ theme }) => theme.colors.mutedText};
+  }
+`;
+
+// Tablecloths, bar and soda pitchers are real options, but they are not what
+// most guests came to decide. Collapsing them keeps the room step a single
+// choice and lets the people who care open the drawer.
+const ExtrasDisclosure = styled.details`
+  margin-top: 1.5rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  background: ${({ theme }) => theme.colors.background};
+  padding: 0 1rem;
+
+  > summary {
+    position: relative;
+    cursor: pointer;
+    list-style: none;
+    padding: 1rem 2rem 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: "＋";
+      position: absolute;
+      right: 0.2rem;
+      top: 1rem;
+      font-weight: 700;
+      color: ${({ theme }) => theme.colors.tertiaryDark};
+    }
+
+    .ed-title {
+      font-weight: 700;
+      color: ${({ theme }) => theme.colors.primaryDark};
+    }
+
+    .ed-sub {
+      font-size: 0.85rem;
+      color: ${({ theme }) => theme.colors.mutedText};
+    }
+  }
+
+  &[open] > summary::before {
+    content: "－";
   }
 `;
 
@@ -2335,6 +2815,7 @@ const MenuItem = styled.div`
   }
 
   .item-img {
+    position: relative;
     flex-shrink: 0;
     width: 84px;
     height: 84px;
