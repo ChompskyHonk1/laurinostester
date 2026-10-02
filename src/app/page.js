@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, Suspense, useState } from 'react';
 import Calendar from './components/Calendar/Calendar';
+import SpookyNight from './components/Halloween/SpookyNight';
 
 
 // HERO SECTION
@@ -51,9 +52,10 @@ const HeroSection = styled.section`
   }
 
   .hero-content {
+    position: relative; /* keep hero copy above the Halloween scene */
     max-width: 800px;
     margin: 0 auto;
-    z-index: 1; /* above overlay */
+    z-index: 2; /* above the Halloween layer */
     padding: 2rem;
   }
 
@@ -260,12 +262,12 @@ const CarouselSection = styled.section`
   z-index: 1; /* Ensure proper layering */
 
   h2 {
-    color: ${({ theme }) => theme.colors.primaryLight};
+    color: #2f2418;
     margin-bottom: 2rem;
     font-family: 'Aloja';
 }
   .subtext  {
-    color: #ffffff;
+    color: #2f2418;
     margin-bottom: .25rem;
        
   }
@@ -308,11 +310,17 @@ const CarouselSection = styled.section`
       align-items: center;
       justify-content: flex-start;
       padding: 1rem;
-      color: ${({ theme }) => theme.colors.primaryLight};
+      /* Dark text reads cleanly on the light card; flips to white on hover. */
+      color: ${({ theme }) => theme.colors.tertiaryDark};
       scroll-snap-align: start;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease,
+        background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 
+      /* Hover keeps the text matched to the (now dark) card background. */
       &:hover {
+        background: ${({ theme }) => theme.colors.tertiaryDark};
+        color: ${({ theme }) => theme.colors.primaryLight};
+        border-color: ${({ theme }) => theme.colors.tertiaryDark};
         transform: translateY(-5px);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
       }
@@ -322,6 +330,11 @@ const CarouselSection = styled.section`
         font-size: 1.2rem;
         text-align: center;
         line-height: 1.3;
+        color: inherit;
+      }
+
+      p {
+        color: inherit;
       }
 
       img {
@@ -991,6 +1004,9 @@ export default function HomePage() {
           />
           {/* A dark overlay to ensure text is legible */}
           <div className="overlay" />
+
+          {/* Moonlit Halloween atmosphere over the hero */}
+          <SpookyNight />
 
           {/* Your main hero content */}
           <div className="hero-content">

@@ -71,6 +71,8 @@ const CATEGORY_IMAGES = {
   pizza: "/Pizza.png",
   sandwiches: "/Burger.jpg",
   sides: "/parties/food-apps.jpg",
+  // Drinks show a metal pitcher rather than the generic pizza fallback.
+  drinks: "/parties/food/drink-iced-tea.svg",
 };
 
 // Per-item photos. Keys are a normalized slug of the item name (see itemSlug
@@ -133,6 +135,11 @@ const ITEM_IMAGES = {
   "italian-ground-sausage": "/parties/food/italian-ground-sausage.jpg",
   "philly-cheese-sub": "/parties/food/philly-cheese-sub.jpg",
   "roast-beef-grinder": "/parties/food/roast-beef-grinder.jpg",
+  // drinks — one metal pitcher per beverage, coloured to match
+  "iced-tea-urn": "/parties/food/drink-iced-tea.svg",
+  "lemonade-urn": "/parties/food/drink-lemonade.svg",
+  "coffee-urn": "/parties/food/drink-coffee.svg",
+  "water-service": "/parties/food/drink-water.svg",
 };
 
 function itemSlug(name) {

@@ -565,7 +565,16 @@ export default function Header() {
   const handleLogoMouseLeave = () => setShowLeaves(false);
 
   // Toggle the pumpkin into a lit jack-o'-lantern without navigating away.
+  // On any other page the pumpkin is part of the brand link, so we let the
+  // click bubble up and return the visitor to the homepage instead.
+  const isHomePage = () => {
+    if (typeof window === "undefined") return false;
+    const p = window.location.pathname;
+    return p === "/" || p === "" || p.includes("/page");
+  };
+
   const handlePumpkinClick = (e) => {
+    if (!isHomePage()) return; // let the click reach the Link and navigate home
     e.preventDefault();
     e.stopPropagation();
     setLit((prev) => !prev);
@@ -575,21 +584,21 @@ export default function Header() {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       e.stopPropagation();
-      setLit((prev) => !prev);
+      if (isHomePage()) {
+        setLit((prev) => !prev);
+      } else {
+        window.location.href = "/";
+      }
     }
   };
 
   const handleLogoClick = (e) => {
-    // Always trigger bats when logo is clicked on home page
-    if (typeof window !== 'undefined') {
-      const currentPath = window.location.pathname;
-      if (currentPath === '/' || currentPath === '' || currentPath.includes('/page')) {
-        e.preventDefault();
-        setShowBats(true);
-        console.log('Bats triggered!', showBats); // Debug log
-        // Hide bats after animation completes
-        setTimeout(() => setShowBats(false), 5000);
-      }
+    // On the homepage, keep the visitor in place and let the bat easter egg
+    // play. Everywhere else, allow the Link to take them home.
+    if (isHomePage()) {
+      e.preventDefault();
+      setShowBats(true);
+      setTimeout(() => setShowBats(false), 5000);
     }
   };
   
