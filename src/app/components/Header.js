@@ -444,64 +444,6 @@ const HeaderContainer = styled.header`
     }
   }
   
-  /* Bat animations */
-  .bat-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9998;
-  }
-  
-  .bat {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    opacity: 0;
-    animation: flyAcross 5s ease-in-out;
-    
-    &.bat1 {
-      top: 20%;
-      animation-delay: 0s;
-    }
-    
-    &.bat2 {
-      top: 40%;
-      animation-delay: 0.5s;
-    }
-  }
-  
-  @keyframes flyAcross {
-    0% {
-      left: -50px;
-      opacity: 0;
-      transform: translateY(0px) rotate(0deg);
-    }
-    10% {
-      opacity: 1;
-    }
-    25% {
-      transform: translateY(-30px) rotate(-15deg);
-    }
-    50% {
-      transform: translateY(30px) rotate(15deg);
-    }
-    75% {
-      transform: translateY(-20px) rotate(-10deg);
-    }
-    90% {
-      opacity: 1;
-    }
-    100% {
-      left: calc(100% + 50px);
-      opacity: 0;
-      transform: translateY(0px) rotate(0deg);
-    }
-  }
-  
-  
 `;
 
 // Autumn leaf overlay: a fixed column in the top-left where leaves fall from the logo.
@@ -569,7 +511,6 @@ const LEAVES = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showBats, setShowBats] = useState(false);
   const [showLeaves, setShowLeaves] = useState(false);
   const [lit, setLit] = useState(false);
   
@@ -596,12 +537,6 @@ export default function Header() {
   // The pumpkin is a light switch, never a link: it always toggles the
   // jack-o'-lantern and stops the click from reaching the brand link. Only the
   // "Laurino's Tavern" name takes you home.
-  const isHomePage = () => {
-    if (typeof window === "undefined") return false;
-    const p = window.location.pathname;
-    return p === "/" || p === "" || p.includes("/page");
-  };
-
   const handlePumpkinClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -616,16 +551,6 @@ export default function Header() {
     }
   };
 
-  const handleLogoClick = (e) => {
-    // On the homepage, keep the visitor in place and let the bat easter egg
-    // play. Everywhere else, allow the Link to take them home.
-    if (isHomePage()) {
-      e.preventDefault();
-      setShowBats(true);
-      setTimeout(() => setShowBats(false), 5000);
-    }
-  };
-  
   // Prevent scrolling when menu is open
   useEffect(() => {
     if (menuOpen) {
@@ -650,7 +575,6 @@ export default function Header() {
             href="/"
             className="brand-link"
             style={{ textDecoration: 'none' }}
-            onClick={handleLogoClick}
             onMouseEnter={handleLogoMouseEnter}
             onMouseLeave={handleLogoMouseLeave}
           >
@@ -942,28 +866,6 @@ export default function Header() {
           </svg>
         ))}
       </LeafOverlay>
-    )}
-
-    {/* Bat animations */}
-    {showBats && (
-      <div className="bat-container">
-        <svg className="bat bat1" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 5C20 5 15 8 15 12C15 16 20 20 20 20C20 20 25 16 25 12C25 8 20 5 20 5Z" fill="#3A5666"/>
-          <ellipse cx="20" cy="25" rx="8" ry="6" fill="#1a1a1a"/>
-          <path d="M12 20C12 20 15 22 18 22C21 22 24 20 24 20" stroke="#FF6B35" strokeWidth="1"/>
-          <path d="M16 20C16 20 17 21 18 21C19 21 20 20 20 20" stroke="#FF6B35" strokeWidth="1"/>
-          <circle cx="17" cy="23" r="1" fill="#FF6B35"/>
-          <circle cx="23" cy="23" r="1" fill="#FF6B35"/>
-        </svg>
-        <svg className="bat bat2" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 5C20 5 15 8 15 12C15 16 20 20 20 20C20 20 25 16 25 12C25 8 20 5 20 5Z" fill="#3A5666"/>
-          <ellipse cx="20" cy="25" rx="8" ry="6" fill="#1a1a1a"/>
-          <path d="M12 20C12 20 15 22 18 22C21 22 24 20 24 20" stroke="#FF6B35" strokeWidth="1"/>
-          <path d="M16 20C16 20 17 21 18 21C19 21 20 20 20 20" stroke="#FF6B35" strokeWidth="1"/>
-          <circle cx="17" cy="23" r="1" fill="#FF6B35"/>
-          <circle cx="23" cy="23" r="1" fill="#FF6B35"/>
-        </svg>
-      </div>
     )}
     </>
   );
