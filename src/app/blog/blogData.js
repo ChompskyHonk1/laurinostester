@@ -15,7 +15,7 @@ const COLUMNS = [
   "id", "slug", "title", "meta_description", "excerpt", "body_md", "category",
   "keywords", "hero_image_url", "hero_image_alt", "hero_image_credit",
   "hero_image_source_url", "hero_image_license", "seo_score",
-  "published_at", "updated_at",
+  "author_name", "author_role", "published_at", "updated_at",
 ].join(",");
 
 async function rest(path) {

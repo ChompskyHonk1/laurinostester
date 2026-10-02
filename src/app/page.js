@@ -3,8 +3,7 @@
 import styled from 'styled-components';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, Suspense, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Calendar from './components/Calendar/Calendar';
 import SpookyNight from './components/Halloween/SpookyNight';
 
@@ -875,12 +874,44 @@ const SecretTrigger = styled.div`
   }
 `;
 
-// Simple loading fallback component
-const LoadingFallback = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-    Loading...
-  </div>
-);
+// The live webcam is a third-party stream. Loading it on first paint blocks the
+// main thread and competes with the hero for bandwidth, so the iframe element
+// is reserved (no layout shift) but its src is only attached once it is near
+// the viewport.
+const LazyWebcamEmbed = ({ src, title }) => {
+  const ref = useRef(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || active) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setActive(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setActive(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '300px 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [active]);
+
+  return (
+    <iframe
+      ref={ref}
+      src={active ? src : undefined}
+      allowFullScreen
+      loading="lazy"
+      title={title}
+    />
+  );
+};
 
 // Simple Easter Egg Hook
 const useEasterEgg = () => {
@@ -917,30 +948,22 @@ const useEasterEgg = () => {
   return { showEasterEgg, triggerEasterEgg, closeEasterEgg };
 };
 
-// This component handles the scroll functionality with useSearchParams
-const ScrollHandler = ({ children }) => {
-  const searchParams = useSearchParams();
-  
-  useEffect(() => {
-    // Check if we should scroll to a section based on URL param
-    const scrollTo = searchParams.get('scrollTo');
-    
-    if (scrollTo) {
-      // Add a small delay to ensure the page is fully loaded
-      setTimeout(() => {
-        const element = document.getElementById(scrollTo);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
-  }, [searchParams]);
-
-  return children;
-};
-
 export default function HomePage() {
   const { showEasterEgg, triggerEasterEgg, closeEasterEgg } = useEasterEgg();
+
+  // Handle `?scrollTo=about` from the footer. Reading it here (instead of via
+  // useSearchParams) keeps the page statically prerenderable — useSearchParams
+  // would force the whole homepage to render as a client-only Suspense
+  // fallback, leaving crawlers with an empty page.
+  useEffect(() => {
+    const scrollTo = new URLSearchParams(window.location.search).get('scrollTo');
+    if (!scrollTo) return;
+    const timer = setTimeout(() => {
+      document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Popular food items for the carousel
   const favoriteItems = [
     {
@@ -976,9 +999,7 @@ export default function HomePage() {
   ];
   
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <ScrollHandler>
-        <>
+    <>
           {showEasterEgg && (
             <EasterEggContainer>
               <div className="easter-egg-content">
@@ -996,11 +1017,16 @@ export default function HomePage() {
           )}
           
           <HeroSection>
-          {/* The background image in the DOM */}
-          <img
+          {/* The LCP image: rendered eagerly and preloaded so it paints as soon
+              as possible, in AVIF/WebP via the Next image optimizer. */}
+          <Image
             className="background-image"
             src="/Capecodmass.jpg"
-            alt="Cape Cod ocean background"
+            alt="Cape Cod ocean view near Laurino's Tavern in Brewster, MA"
+            fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
           />
           {/* A dark overlay to ensure text is legible */}
           <div className="overlay" />
@@ -1034,12 +1060,13 @@ export default function HomePage() {
             {favoriteItems.map((item, index) => (
               <div key={index} className="food-item">
                 <h3>{item.name}</h3>
-                <img 
-                  src={item.image} 
-                  alt={item.name}
-                  onError={(e) => {
-                    e.target.src = '/Pizza.png'; // Fallback image
-                  }}
+                <Image
+                  src={item.image}
+                  alt={`${item.name} at Laurino's Tavern`}
+                  width={300}
+                  height={200}
+                  sizes="(max-width: 768px) 260px, 300px"
+                  style={{ objectFit: 'cover' }}
                 />
                 <p>{item.description}</p>
               </div>
@@ -1072,9 +1099,12 @@ export default function HomePage() {
               </p>
             </div>
             <div className="about-image">
-              <img
+              <Image
                 src="/barimage.jpg"
-                alt="Laurino's Tavern Front"
+                alt="Inside Laurino's Tavern in Brewster, MA"
+                width={1200}
+                height={800}
+                sizes="(max-width: 900px) 100vw, 50vw"
               />
             </div>
           </AboutSection>
@@ -1101,9 +1131,12 @@ export default function HomePage() {
 
             {/* Right: SVG or image container */}
             <div className="image-container">
-              <img
+              <Image
                 src="/Catering.svg"
-                alt="Mobile bar illustration"
+                alt="Laurino's Tavern mobile bar and catering service"
+                width={900}
+                height={600}
+                unoptimized
               />
             </div>
           </div>
@@ -1125,9 +1158,10 @@ export default function HomePage() {
             <Link href="../components/laurinosstore/Store?category=Gear">
               <Image
                 src="/Gear.svg"
-                alt="Gear"
+                alt="Laurino's Tavern branded gear"
                 width={275}
                 height={275}
+                unoptimized
                 style={{
                   objectFit: 'contain',
                   margin: '0 auto',
@@ -1144,9 +1178,10 @@ export default function HomePage() {
             <Link href="../components/laurinosstore/Store?category=T-Shirts">
               <Image
                 src="/Tshirts.svg"
-                alt="T-Shirts"
+                alt="Laurino's Tavern t-shirts"
                 width={275}
                 height={275}
+                unoptimized
                 style={{
                   objectFit: 'contain',
                   margin: '0 auto',
@@ -1161,9 +1196,10 @@ export default function HomePage() {
             <Link href="../components/laurinosstore/Store?category=Sweatshirts">
               <Image
                 src="/Hoodiefront.svg"
-                alt="Sweatshirts"
+                alt="Laurino's Tavern sweatshirts"
                 width={275}
                 height={275}
+                unoptimized
                 style={{
                   objectFit: 'contain',
                   margin: '0 auto',
@@ -1178,9 +1214,10 @@ export default function HomePage() {
             <Link href="../components/laurinosstore/Store?category=Hats">
               <Image
                 src="/Hats.svg"
-                alt="Hats"
+                alt="Laurino's Tavern hats"
                 width={275}
                 height={275}
+                unoptimized
                 style={{
                   objectFit: 'contain',
                   margin: '0 auto',
@@ -1198,15 +1235,12 @@ export default function HomePage() {
       <h2>Live Webcam</h2>
       <p>Check out what's happening locally!</p>
       <div className="webcam-wrapper">
-        <iframe
+        <LazyWebcamEmbed
           src="https://streampros.net/player/live/rvm2php9"
-          allowFullScreen
-          title="Live Stream"
+          title="Laurino's Tavern live webcam in Brewster, MA"
         />
       </div>
     </WebcamSection>
-        </>
-      </ScrollHandler>
-    </Suspense>
+    </>
   );
 }

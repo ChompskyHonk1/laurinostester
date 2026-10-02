@@ -55,7 +55,7 @@ export default async function ArticlePage({ params }) {
     dateModified: post.updated_at || post.published_at || undefined,
     articleSection: post.category,
     keywords: Array.isArray(post.keywords) ? post.keywords.join(", ") : undefined,
-    author: { "@type": "Organization", name: "Laurino's Tavern" },
+    author: { "@type": "Organization", name: post.author_name || "Laurino's Tavern" },
     publisher: {
       "@type": "Restaurant",
       name: "Laurino's Tavern",
@@ -93,7 +93,8 @@ export default async function ArticlePage({ params }) {
         <span className="blog-card-cat">{post.category}</span>
         <h1 className="article-title">{post.title}</h1>
         <p className="article-meta">
-          By the Laurino&apos;s Tavern kitchen, Brewster MA
+          By {post.author_name || "Laurino's Tavern"}
+          {post.author_role ? `, ${post.author_role}` : ""}
           {post.published_at ? ` · ${formatPostDate(post.published_at)}` : ""}
         </p>
 

@@ -2,11 +2,15 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
-  /* Declare your custom font first */
+  /* Declare your custom font first. 'font-display: swap' keeps text visible
+     immediately and swaps the display face in, instead of blocking paint on a
+     ~72 KB font download (a common CLS/LCP penalty). */
   @font-face {
     font-family: 'Aloja';
-    src: url('/Aloja Extended.ttf') format('truetype');
+    src: url('/Aloja%20Extended.ttf') format('truetype');
     font-style: normal;
+    font-weight: 400;
+    font-display: swap;
   }
  
   /* Basic CSS reset or normalize can go here */
@@ -28,9 +32,15 @@ const GlobalStyles = createGlobalStyle`
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Smooth transitions for theme changes */
-  * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  /* A universal 'transition: *' forces every element to watch for color and
+     background changes — that is a lot of style recalculation for a theme that
+     only ships light mode. Scope it to the surfaces that actually transition. */
+  body,
+  header,
+  footer,
+  main,
+  section {
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Scrollbar styling */
@@ -144,15 +154,6 @@ const GlobalStyles = createGlobalStyle`
       outline: 2px solid ${({ theme }) => theme.colors.tertiaryDark};
       outline-offset: 2px;
     }
-    
-    /* Reduce motion for users who prefer it */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
   }
 
   /* Tablet optimizations */
@@ -175,6 +176,19 @@ const GlobalStyles = createGlobalStyle`
     
     html, body {
       font-size: 15px;
+    }
+  }
+
+  /* Respect the OS "reduce motion" setting everywhere, not just on mobile.
+     This also silences the decorative animations for motion-sensitive users. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
 `;
