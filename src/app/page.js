@@ -1125,7 +1125,7 @@ export default function HomePage() {
                 custom menus, bar service, and more.
               </p>
               <a href="/components/catering" className="cta-button">
-                Learn More
+                Explore catering services
               </a>
             </div>
 

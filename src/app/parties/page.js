@@ -619,7 +619,7 @@ export default function PartiesPage() {
       return;
     }
     if (!d || d.v !== 1) return;
-    if (typeof d.step === "number") setStep(Math.min(3, Math.max(0, d.step)));
+    if (typeof d.step === "number") setStep(Math.min(2, Math.max(0, d.step)));
     if (typeof d.date === "string" && d.date) setDate(d.date);
     if (typeof d.startTime === "string") setStartTime(d.startTime);
     if (typeof d.endTime === "string") setEndTime(d.endTime);
@@ -753,14 +753,12 @@ export default function PartiesPage() {
   const rooms = (q && q.rooms) || [];
   const availableRooms = rooms.filter((r) => r.available);
   const selectedRooms = rooms.filter((r) => roomIds.includes(r.id));
-  const selectedRoom = selectedRooms[0] || null;
   // Display label for the summary and confirmation — multiple rooms join with " + ".
   const roomLabel = noRoom
     ? "No room (pickup)"
     : selectedRooms.length
     ? selectedRooms.map((r) => r.name).join(" + ")
     : "—";
-  const minimumCents = q && q.minimum_cents != null ? q.minimum_cents : null;
   const itemSubtotalCents = q ? q.item_subtotal_cents : 0;
   const itemTotalCents = q ? q.item_total_cents : 0;
   const coversEstimate = q ? Math.round(q.covers_estimate || 0) : 0;
@@ -889,9 +887,9 @@ export default function PartiesPage() {
   }, []);
 
   const canNext = (s) => {
-    if (s === 0) return detailsValid;
-    if (s === 1) return roomValid;
-    if (s === 2) return true; // menu optional
+    // The first step now carries date, time, guests and the room picker.
+    if (s === 0) return detailsValid && roomValid;
+    if (s === 1) return true; // menu is optional
     return false;
   };
 
@@ -1186,17 +1184,11 @@ export default function PartiesPage() {
                 />
               </Field>
             </FieldGrid>
-          </Step>
 
-          {/* Step 2 — room */}
-          <Step $active={step === 1}>
-            <StepHeader>
-              <StepNum>2</StepNum>
-              <div>
-                <h2>Pick your room(s)</h2>
-                <p>Tap to add more than one room. Hidden rooms are unavailable for that date.</p>
-              </div>
-            </StepHeader>
+            <SubSection>
+              <h3>Pick your room(s)</h3>
+              <p>Tap to add more than one room. Hidden rooms are unavailable for that date.</p>
+            </SubSection>
 
             <RoomGrid>
               <RoomCard
@@ -1216,7 +1208,6 @@ export default function PartiesPage() {
                 <div className="room-body">
                   <h3>No room, just food</h3>
                   <p>Catering pickup — no room needed at all.</p>
-                  <div className="room-min">No room minimum</div>
                 </div>
                   <CheckMark $visible={noRoom} />
                 </RoomCard>
@@ -1242,30 +1233,11 @@ export default function PartiesPage() {
                   <div className="room-body">
                     <h3>{r.name}</h3>
                     <p>Seats up to {r.seats}</p>
-                    <div className="room-min">
-                      {r.minimum_cents != null ? (
-                        <>
-                          <strong>{fmtCents(r.minimum_cents)}/hour</strong> minimum
-                        </>
-                      ) : (
-                        "Call for pricing"
-                      )}
-                    </div>
                   </div>
                   <CheckMark $visible={roomIds.includes(r.id)} />
                 </RoomCard>
               ))}
             </RoomGrid>
-
-            {inHouse && selectedRoom && selectedRoom.minimum_cents != null && (
-              <MinExplain>
-                {selectedRooms.length > 1
-                  ? `The ${selectedRoom.name} — and each extra room — carries a ${fmtCents(selectedRoom.minimum_cents)}/hour minimum on an ${hour >= 16 ? "evening" : "afternoon"}. A manager confirms the combined minimums. That's spend on food and drink, `
-                  : `The ${selectedRoom.name} has a ${fmtCents(selectedRoom.minimum_cents)}/hour minimum on an ${hour >= 16 ? "evening" : "afternoon"}. That's what your party spends on food and drink — `}
-                <strong>not a fee on top.</strong> Most parties of this
-                size clear it without trying.
-              </MinExplain>
-            )}
 
             {inHouse && (
               <ExtrasDisclosure>
@@ -1294,10 +1266,10 @@ export default function PartiesPage() {
             )}
           </Step>
 
-          {/* Step 3 — menu */}
-          <Step $active={step === 2}>
+          {/* Step 2 — menu */}
+          <Step $active={step === 1}>
             <StepHeader>
-              <StepNum>3</StepNum>
+              <StepNum>2</StepNum>
               <div>
                 <h2>Build a wish list</h2>
                 <p>Optional. Pick what sounds good — this is a wish list, not a final order.</p>
@@ -1378,10 +1350,10 @@ export default function PartiesPage() {
             )}
           </Step>
 
-          {/* Step 4 — contact & send (also the desktop right rail) */}
-          <Step $active={step === 3}>
+          {/* Step 3 — contact & send (also the desktop right rail) */}
+          <Step $active={step === 2}>
             <StepHeader>
-              <StepNum>4</StepNum>
+              <StepNum>3</StepNum>
               <div>
                 <h2>Contact &amp; send</h2>
                 <p>This is where you tell us the real story.</p>
@@ -1391,7 +1363,7 @@ export default function PartiesPage() {
             <OrderReview>
               <div className="or-head">
                 <h3>Your order so far</h3>
-                <button type="button" className="or-add" onClick={() => setStep(2)}>
+                  <button type="button" className="or-add" onClick={() => setStep(1)}>
                   Add more items
                 </button>
               </div>
@@ -1399,7 +1371,7 @@ export default function PartiesPage() {
               {selectedMenuLines.length === 0 ? (
                 <p className="or-empty">
                   No menu items yet —{" "}
-                  <button type="button" className="or-add" onClick={() => setStep(2)}>
+                <button type="button" className="or-add" onClick={() => setStep(1)}>
                     browse the menu
                   </button>{" "}
                   to add some.
@@ -1519,17 +1491,19 @@ export default function PartiesPage() {
             <ContactForm onSubmit={handleSubmit}>
               <Field>
                 <label htmlFor="c-name">Your name</label>
-                <input id="c-name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} placeholder="Jane Laurino" />
+                <input id="c-name" autoComplete="name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} placeholder="Jane Laurino" />
               </Field>
               <Field>
                 <label htmlFor="c-email">Email</label>
-                <input id="c-email" type="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} placeholder="you@email.com" />
+                <input id="c-email" type="email" inputMode="email" autoComplete="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} placeholder="you@email.com" />
               </Field>
               <Field>
                 <label htmlFor="c-phone">Phone (optional)</label>
                 <input
                   id="c-phone"
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   value={contact.phone}
                   onChange={(e) => setContact({ ...contact, phone: e.target.value })}
                   placeholder="(508) 555-0123"
@@ -1576,7 +1550,7 @@ export default function PartiesPage() {
                 </Notice>
               )}
 
-              <SendButton type="submit" disabled={!contactValid || overMaxGuests || submitting}>
+              <SendButton id="contact-send" type="submit" disabled={!contactValid || overMaxGuests || submitting}>
                 {overMaxGuests ? "Please call instead" : submitting ? "Sending…" : "Send request"}
               </SendButton>
               {submitError && <SubmitError>{submitError}</SubmitError>}
@@ -1611,12 +1585,6 @@ export default function PartiesPage() {
 
             <Divider />
 
-            {inHouse && minimumCents != null && (
-              <SummaryLine>
-                <span>Room minimum</span>
-                <strong>{fmtCents(minimumCents)} / hr</strong>
-              </SummaryLine>
-            )}
             <SummaryLine>
               <span>Menu wish list</span>
               <strong>{itemSubtotalCents > 0 ? fmtCents(itemSubtotalCents) : "$0"}</strong>
@@ -1673,21 +1641,6 @@ export default function PartiesPage() {
               <span>Estimated total</span>
               <strong>{fmtCents(displayedTotalCents)}</strong>
             </SummaryLine>
-
-            {minimumCents != null && inHouse && (
-              <MinimumNote>
-                {spendCents >= minimumCents ? (
-                  <>
-                    ✓ Your food &amp; drink spend clears the {fmtCents(minimumCents)}/hour minimum.
-                  </>
-                ) : (
-                  <>
-                    The room has a {fmtCents(minimumCents)}/hour minimum. Add a tray or two — it&apos;s
-                    spend on food &amp; drink, not a fee.
-                  </>
-                )}
-              </MinimumNote>
-            )}
 
             {guestsInt > 0 && !overMaxGuests && (
               <CoversNote>
@@ -1760,7 +1713,7 @@ export default function PartiesPage() {
 
       {mounted && isMobile && (
         <>
-          {!chaferOpen && step >= 1 && step <= 2 && (
+          {!chaferOpen && step === 1 && (
             <MobileChaferBtn type="button" onClick={() => setChaferOpen(true)}>
               <span aria-hidden="true">▣</span>
               See your chafers
@@ -1803,14 +1756,14 @@ export default function PartiesPage() {
       {/* Mobile bottom nav */}
       <MobileBar>
         <div className="mb-total">
-          {step >= 2 && <span className="mb-label">Est. total</span>}
-          <span className="mb-amount">{step >= 2 ? fmtCents(displayedTotalCents) : `${guestsInt || "—"} guests`}</span>
+          {step >= 1 && <span className="mb-label">Est. total</span>}
+          <span className="mb-amount">{step >= 1 ? fmtCents(displayedTotalCents) : `${guestsInt || "—"} guests`}</span>
         </div>
         <div className="mb-actions">
           {step > 0 && (
             <GhostButton onClick={() => setStep(step - 1)}>Back</GhostButton>
           )}
-          {step < 3 ? (
+          {step < 2 ? (
             <PrimaryButton disabled={!canNext(step)} onClick={() => setStep(step + 1)}>
               Next
             </PrimaryButton>
@@ -1827,7 +1780,7 @@ export default function PartiesPage() {
 
 /* ------------------------------------------------------------- constants */
 
-const STEPS = ["Details", "Room", "Menu", "Send"];
+const STEPS = ["Details", "Menu", "Send"];
 
 /* ------------------------------------------------------------ subcomponents */
 
@@ -1892,7 +1845,7 @@ const Hero = styled.section`
   }
 
   p {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     line-height: 1.6;
     margin: 0 0 1.5rem;
     color: rgba(255, 255, 255, 0.92);
@@ -1903,9 +1856,10 @@ const Hero = styled.section`
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 999px;
-    padding: 0.6rem 1.4rem;
+    padding: 0.7rem 1.5rem;
     text-decoration: none;
     font-weight: 600;
+    font-size: 1.1rem;
     transition: background 0.2s ease, color 0.2s ease;
 
     &:hover {
@@ -1918,10 +1872,10 @@ const Hero = styled.section`
     padding: ${({ $slim }) => ($slim ? "3rem 1.25rem" : "3.5rem 1.25rem")};
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.15rem;
     }
     p {
-      font-size: 1rem;
+      font-size: 1.08rem;
     }
   }
 `;
@@ -2019,7 +1973,7 @@ const StepDot = styled.button`
   }
 
   .label {
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     color: ${({ $active, theme }) => ($active ? theme.colors.tertiaryDark : theme.colors.mutedText)};
     text-transform: uppercase;
     letter-spacing: 0.4px;
@@ -2069,7 +2023,7 @@ const StepHeader = styled.div`
 
   h2 {
     font-family: "Aloja", serif;
-    font-size: 1.6rem;
+    font-size: 1.75rem;
     margin: 0 0 0.25rem;
     color: ${({ theme }) => theme.colors.primaryDark};
   }
@@ -2077,7 +2031,7 @@ const StepHeader = styled.div`
   p {
     margin: 0;
     color: ${({ theme }) => theme.colors.mutedText};
-    font-size: 0.95rem;
+    font-size: 1.05rem;
   }
 `;
 
@@ -2105,13 +2059,36 @@ const FieldGrid = styled.div`
   }
 `;
 
+// Second half of the merged first step: the room picker, set off from the
+// date/time/guest fields by a rule so it reads as one calm screen, not two.
+const SubSection = styled.div`
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+
+  h3 {
+    font-family: "Aloja", serif;
+    font-size: 1.45rem;
+    font-weight: 400;
+    margin: 0 0 0.35rem;
+    color: ${({ theme }) => theme.colors.primaryDark};
+  }
+
+  > p {
+    margin: 0 0 1.35rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: ${({ theme }) => theme.colors.mutedText};
+  }
+`;
+
 const Field = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 
   label {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: ${({ theme }) => theme.colors.primaryDark};
   }
@@ -2121,13 +2098,13 @@ const Field = styled.div`
   textarea {
     border: 1px solid ${({ theme }) => theme.colors.border};
     border-radius: ${({ theme }) => theme.borderRadius.medium};
-    padding: 0.75rem 0.9rem;
-    font-size: 1rem;
+    padding: 0.8rem 0.95rem;
+    font-size: 1.05rem;
     font-family: inherit;
     background: ${({ theme }) => theme.colors.background};
     color: ${({ theme }) => theme.colors.text};
     width: 100%;
-    min-height: 44px;
+    min-height: 48px;
 
     &:focus {
       outline: 2px solid ${({ theme }) => theme.colors.tertiaryDark};
@@ -2141,7 +2118,7 @@ const Field = styled.div`
 
   .hint {
     margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.92rem;
     color: ${({ theme }) => theme.colors.mutedText};
   }
 `;
@@ -2160,12 +2137,12 @@ const ServiceToggle = styled.div`
     background: ${({ theme }) => theme.colors.background};
     color: ${({ theme }) => theme.colors.text};
     border-radius: ${({ theme }) => theme.borderRadius.medium};
-    padding: 0.7rem 0.75rem;
+    padding: 0.75rem 0.8rem;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 700;
     cursor: pointer;
-    min-height: 56px;
+    min-height: 58px;
     line-height: 1.2;
     transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
@@ -2177,7 +2154,7 @@ const ServiceToggle = styled.div`
 
     .sub {
       display: block;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       font-weight: 500;
       opacity: 0.82;
       margin-top: 0.2rem;
@@ -2202,7 +2179,7 @@ const OrderReview = styled.section`
   }
   h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: ${({ theme }) => theme.colors.primaryDark};
   }
   .or-add {
@@ -2242,7 +2219,7 @@ const OrderReview = styled.section`
     flex-direction: column;
   }
   .or-unit {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: ${({ theme }) => theme.colors.mutedText};
   }
   .or-qty {
@@ -2296,7 +2273,7 @@ const OrderReview = styled.section`
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    font-size: 0.92rem;
+    font-size: 1.02rem;
   }
   .or-summary > div > span:first-child {
     color: ${({ theme }) => theme.colors.mutedText};
@@ -2305,7 +2282,7 @@ const OrderReview = styled.section`
     border-top: 2px solid ${({ theme }) => theme.colors.border};
     margin-top: 0.4rem;
     padding-top: 0.5rem;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: ${({ theme }) => theme.colors.primaryDark};
   }
@@ -2314,7 +2291,7 @@ const OrderReview = styled.section`
   }
   .or-note {
     margin: 0.7rem 0 0;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     line-height: 1.5;
     color: ${({ theme }) => theme.colors.mutedText};
   }
@@ -2328,7 +2305,7 @@ const Notice = styled.div`
   padding: 0.9rem 1.1rem;
   border-radius: ${({ theme }) => theme.borderRadius.small};
   margin-bottom: 1.25rem;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   line-height: 1.5;
 
   a {
@@ -2398,18 +2375,9 @@ const RoomCard = styled.div`
     }
 
     p {
-      margin: 0 0 0.5rem;
-      font-size: 0.9rem;
+      margin: 0;
+      font-size: 0.95rem;
       color: ${({ theme }) => theme.colors.mutedText};
-    }
-
-    .room-min {
-      font-size: 0.9rem;
-      color: ${({ theme }) => theme.colors.tertiaryDark};
-
-      strong {
-        font-size: 1.05rem;
-      }
     }
   }
 `;
@@ -2434,17 +2402,6 @@ const CheckMark = styled.span`
     content: "✓";
     opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   }
-`;
-
-const MinExplain = styled.div`
-  margin-top: 1.25rem;
-  padding: 1rem 1.1rem;
-  background: ${({ theme }) => theme.colors.background};
-  border: 1px solid ${({ theme }) => theme.colors.accent};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  font-size: 0.95rem;
-  line-height: 1.55;
-  color: ${({ theme }) => theme.colors.text};
 `;
 
 const ClothOptions = styled.div`
@@ -2498,13 +2455,13 @@ const ClothOptions = styled.div`
     line-height: 1.15;
 
     strong {
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       color: ${({ theme }) => theme.colors.text};
       text-align: center;
     }
 
     em {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       font-style: normal;
       color: ${({ theme }) => theme.colors.mutedText};
     }
@@ -2518,14 +2475,14 @@ const TableclothPicker = styled.div`
 
   h4 {
     font-family: "Aloja", serif;
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     margin: 0 0 0.25rem;
     color: ${({ theme }) => theme.colors.primaryDark};
   }
 
   p {
     margin: 0 0 0.85rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: ${({ theme }) => theme.colors.mutedText};
   }
 `;
@@ -2564,11 +2521,12 @@ const ExtrasDisclosure = styled.details`
 
     .ed-title {
       font-weight: 700;
+      font-size: 1.05rem;
       color: ${({ theme }) => theme.colors.primaryDark};
     }
 
     .ed-sub {
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       color: ${({ theme }) => theme.colors.mutedText};
     }
   }
@@ -2796,7 +2754,7 @@ const MenuList = styled.div`
 const MenuGroup = styled.div`
   h3 {
     font-family: "Aloja", serif;
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     margin: 0 0 0.75rem;
     padding-bottom: 0.4rem;
@@ -2842,6 +2800,7 @@ const MenuItem = styled.div`
 
     .item-name {
       font-weight: 600;
+      font-size: 1.08rem;
       color: ${({ theme }) => theme.colors.text};
 
       .item-size {
@@ -2852,6 +2811,7 @@ const MenuItem = styled.div`
 
     .item-price {
       font-weight: 700;
+      font-size: 1.08rem;
       color: ${({ theme }) => theme.colors.primaryDark};
       white-space: nowrap;
     }
@@ -2859,7 +2819,7 @@ const MenuItem = styled.div`
 
   .item-desc {
     margin: 0.25rem 0 0.5rem;
-    font-size: 0.88rem;
+    font-size: 0.98rem;
     color: ${({ theme }) => theme.colors.mutedText};
 
     .item-covers {
@@ -2870,7 +2830,7 @@ const MenuItem = styled.div`
 
   .item-market {
     margin: 0 0 0.5rem;
-    font-size: 0.82rem;
+    font-size: 0.92rem;
     font-style: italic;
     color: ${({ theme }) => theme.colors.highlight};
   }
@@ -2999,7 +2959,7 @@ const Summary = styled.div`
 
   h3 {
     font-family: "Aloja", serif;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     margin: 0 0 1rem;
     color: ${({ theme }) => theme.colors.primaryDark};
   }
@@ -3010,8 +2970,8 @@ const SummaryLine = styled.div`
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  padding: 0.35rem 0;
-  font-size: 0.95rem;
+  padding: 0.4rem 0;
+  font-size: 1.05rem;
 
   span {
     color: ${({ theme }) => theme.colors.mutedText};
@@ -3025,7 +2985,7 @@ const SummaryLine = styled.div`
   ${({ $big }) =>
     $big &&
     `
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     padding: 0.5rem 0;
     strong { color: ${({ theme }) => theme.colors.tertiaryDark}; }
   `}
@@ -3037,23 +2997,13 @@ const Divider = styled.div`
   margin: 0.75rem 0;
 `;
 
-const MinimumNote = styled.div`
-  margin-top: 0.75rem;
-  padding: 0.8rem 0.9rem;
-  background: ${({ theme }) => theme.colors.background};
-  border-radius: ${({ theme }) => theme.borderRadius.small};
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
 const CoversNote = styled.div`
   margin-top: 0.75rem;
   padding: 0.8rem 0.9rem;
   background: #eef3f5;
   border-left: 3px solid ${({ theme }) => theme.colors.tertiaryDark};
   border-radius: ${({ theme }) => theme.borderRadius.small};
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   line-height: 1.5;
   color: ${({ theme }) => theme.colors.text};
 `;
@@ -3081,14 +3031,14 @@ const MobileBar = styled.div`
       flex-direction: column;
 
       .mb-label {
-        font-size: 0.7rem;
+        font-size: 0.78rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: ${({ theme }) => theme.colors.mutedText};
       }
 
       .mb-amount {
-        font-size: 1.15rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: ${({ theme }) => theme.colors.tertiaryDark};
       }
@@ -3110,7 +3060,7 @@ const Disclaimer = styled.div`
     margin: 0;
     padding-top: 1.25rem;
     border-top: 1px solid ${({ theme }) => theme.colors.border};
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     line-height: 1.55;
     text-align: center;
     color: ${({ theme }) => theme.colors.mutedText};

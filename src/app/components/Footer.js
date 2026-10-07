@@ -1,7 +1,6 @@
 "use client";
 import styled from 'styled-components';
 import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
-import { Link as ScrollLink } from 'react-scroll';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
@@ -192,17 +191,17 @@ export default function Footer() {
         
         {/* Optional site nav links, e.g., Privacy Policy, etc. */}
         <nav className="footer-nav">
-          {pathname === '/' ? (
-            <ScrollLink to="about" smooth={true} duration={500} className="nav-link">About Us</ScrollLink>
-          ) : (
-            <button type= "button"
-              className="nav-link" 
-              onClick={handleAboutClick}
-              aria-label="Go to About Us section"
-            >
-              About Us
-            </button>
-          )}
+          {/* A real button, not a react-scroll <a>: that anchor had no href,
+              which Lighthouse flags as uncrawlable. The handler scrolls on the
+              homepage and navigates there from any other page. */}
+          <button
+            type="button"
+            className="nav-link"
+            onClick={handleAboutClick}
+            aria-label="Go to the About Us section"
+          >
+            About Us
+          </button>
           <Link href="/components/menu">Menu</Link>
           <Link href="/components/Contact">Contact</Link>
         </nav>

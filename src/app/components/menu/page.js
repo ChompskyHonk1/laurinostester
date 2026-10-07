@@ -29,15 +29,18 @@ export default function MenuPage() {
 
       <MenuNav>
         <NavInner>
-          {categories.map((category) => (
-            <NavItem
-              key={category}
-              active={activeCategory === category}
-              onClick={() => setActiveCategory(category)}
-            >
-              {category}
-            </NavItem>
-          ))}
+          <label htmlFor="menu-category">Menu section</label>
+          <select
+            id="menu-category"
+            value={activeCategory}
+            onChange={(e) => setActiveCategory(e.target.value)}
+          >
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
         </NavInner>
       </MenuNav>
 
@@ -893,53 +896,62 @@ const MenuHeader = styled.div`
 const MenuNav = styled.nav`
   width: 100%;
   background: ${({ theme }) => theme.colors.primaryDark || "#2a2a2a"};
-  overflow-x: auto;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+  padding: 0.85rem 1.25rem;
 `;
 
 const NavInner = styled.div`
   display: flex;
-  min-width: min-content;
-  max-width: 1200px;
+  align-items: center;
+  gap: 0.85rem;
+  max-width: 1000px;
   margin: 0 auto;
-`;
 
-const NavItem = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== "active",
-})`
-  background: none;
-  border: none;
-  padding: 1rem 1.5rem;
-  color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: ${({ active }) => (active ? 600 : 400)};
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-
-  &:after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: ${({ active }) => (active ? "30%" : "0")};
-    height: 2px;
-    background-color: #ffffff;
-    transition: width 0.3s ease;
+  label {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
   }
 
-  &:hover {
-    color: #ffffff;
-    &:after {
-      width: 30%;
+  select {
+    flex: 1;
+    max-width: 440px;
+    min-height: 50px;
+    padding: 0.7rem 2.75rem 0.7rem 1rem;
+    font-size: 1.05rem;
+    font-family: inherit;
+    font-weight: 600;
+    color: ${({ theme }) => theme.colors.primaryDark || "#2a2a2a"};
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232a2a2a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.95rem center;
+    background-size: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.65);
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &:focus-visible {
+      outline: 2px solid #ffffff;
+      outline-offset: 2px;
+    }
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+
+    select {
+      max-width: none;
     }
   }
 `;

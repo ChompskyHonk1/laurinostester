@@ -726,9 +726,16 @@ export default function Header() {
         <nav>
           {/* Always visible links */}
           <div className="always-visible-links">
-            {/* Mobile-only phone link that appears between main nav items */}
-            <a href="tel:+15088966135" className="nav-link mobile-phone-link">
-              <FontAwesomeIcon icon={faPhone} className="phone-icon" />
+            {/* Mobile-only phone link that appears between main nav items.
+                The icon carries no text, so an aria-label gives it an
+                accessible name for screen readers and Lighthouse. */}
+            <a
+              href="tel:+15088966135"
+              className="nav-link mobile-phone-link"
+              aria-label="Call Laurino's Tavern at (508) 896-6135"
+              title="Call (508) 896-6135"
+            >
+              <FontAwesomeIcon icon={faPhone} className="phone-icon" aria-hidden="true" />
             </a>
           </div>
           
