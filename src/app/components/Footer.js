@@ -203,6 +203,9 @@ export default function Footer() {
             About Us
           </button>
           <Link href="/components/menu">Menu</Link>
+          <Link href="/parties">Parties</Link>
+          <Link href="/weddings">Weddings &amp; Events</Link>
+          <Link href="/components/catering">Catering</Link>
           <Link href="/components/Contact">Contact</Link>
         </nav>
         

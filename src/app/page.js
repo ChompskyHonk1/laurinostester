@@ -566,6 +566,86 @@ const CateringSection = styled.section`
 // MERCH SECTION (unchanged)
 
 
+// WEDDINGS & EVENTS SECTION
+// The homepage carries the most authority on the site, so it links into the
+// dedicated /weddings landing page with the search terms people actually use:
+// wedding receptions, rehearsal dinners and private parties on Cape Cod.
+const WeddingsSection = styled.section`
+  background: ${({ theme }) => theme.colors.tertiaryDark};
+  color: ${({ theme }) => theme.colors.primaryLight};
+  padding: 4rem 2rem;
+  text-align: center;
+
+  .weddings-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  h2 {
+    font-family: 'Aloja';
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .weddings-lede {
+    max-width: 700px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    opacity: 0.95;
+  }
+
+  .weddings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+    text-align: left;
+  }
+
+  .wedding-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    padding: 1.4rem 1.25rem;
+
+    h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      color: ${({ theme }) => theme.colors.primaryLight};
+    }
+
+    p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+  }
+
+  .weddings-cta {
+    display: inline-block;
+    background: ${({ theme }) => theme.colors.primaryLight};
+    color: ${({ theme }) => theme.colors.tertiaryDark};
+    text-decoration: none;
+    padding: 0.85rem 1.75rem;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: transform 0.2s ease, background 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: ${({ theme }) => theme.colors.accent};
+    }
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    padding: 3rem 1.25rem;
+
+    h2 {
+      font-size: 1.8rem;
+    }
+  }
+`;
+
 const Section = styled.section`
   background: ${({ theme }) => theme.colors?.light || '#f9f9f9'};
   text-align: center;
@@ -1102,14 +1182,51 @@ export default function HomePage() {
               <Image
                 src="/barimage.jpg"
                 alt="Inside Laurino's Tavern in Brewster, MA"
-                width={1200}
-                height={800}
+                width={736}
+                height={1104}
                 sizes="(max-width: 900px) 100vw, 50vw"
               />
             </div>
           </AboutSection>
 
           
+
+        <WeddingsSection id="weddings">
+          <div className="weddings-inner">
+            <h2>Cape Cod Weddings, Receptions &amp; Rehearsal Dinners</h2>
+            <p className="weddings-lede">
+              Laurino&apos;s Tavern is a family-run Cape Cod restaurant and event venue in
+              Brewster, MA. We host wedding receptions, rehearsal dinners, bridal showers
+              and private parties — with the food, bar and room all handled in one place.
+            </p>
+            <div className="weddings-grid">
+              <div className="wedding-card">
+                <h3>Wedding receptions</h3>
+                <p>
+                  Private rooms and on-site catering for the reception, from cocktail
+                  hour through dinner and dancing.
+                </p>
+              </div>
+              <div className="wedding-card">
+                <h3>Rehearsal dinners</h3>
+                <p>
+                  A relaxed dinner the night before the wedding, with room for toasts and
+                  a menu of Cape Cod seafood and Italian favorites.
+                </p>
+              </div>
+              <div className="wedding-card">
+                <h3>Private parties &amp; showers</h3>
+                <p>
+                  Bridal showers, engagement parties, birthdays, anniversaries and
+                  corporate dinners in a room of your own.
+                </p>
+              </div>
+            </div>
+            <Link href="/weddings" className="weddings-cta">
+              Plan your wedding or event
+            </Link>
+          </div>
+        </WeddingsSection>
 
         <CateringSection>
           <div className="content">

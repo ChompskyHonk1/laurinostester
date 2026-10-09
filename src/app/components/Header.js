@@ -12,7 +12,8 @@ import {
   faPhone,
   faEnvelope,
   faBookOpen,
-  faGlassCheers
+  faGlassCheers,
+  faHeart
 } from "@fortawesome/free-solid-svg-icons";
 
 
@@ -750,6 +751,9 @@ export default function Header() {
             <Link href="/parties" className="nav-link">
               Parties
             </Link>
+            <Link href="/weddings" className="nav-link">
+              Weddings
+            </Link>
             <Link href="/components/Contact" className="nav-link">
               Contact
             </Link>
@@ -819,6 +823,10 @@ export default function Header() {
             <Link href="/parties" className="nav-link" onClick={toggleMenu}>
               <FontAwesomeIcon icon={faGlassCheers} className="menu-icon" />
               Parties
+            </Link>
+            <Link href="/weddings" className="nav-link" onClick={toggleMenu}>
+              <FontAwesomeIcon icon={faHeart} className="menu-icon" />
+              Weddings
             </Link>
             <a 
               href="https://laurinostavern.webgiftcardsales.com/" 

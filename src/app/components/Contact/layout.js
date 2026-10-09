@@ -1,7 +1,15 @@
 export const metadata = {
-  title: "Contact & Directions",
+  title: "Directions, Hours & Reservations",
   description:
-    "Visit or call Laurino's Tavern at 3668 Main Street, Brewster, MA 02631. Phone (508) 896-6135. Get directions, hours and answers about reservations, parties and takeout on Cape Cod.",
+    "Visit or call Laurino's Tavern at 3668 Main Street, Brewster, MA 02631. Phone (508) 896-6135. Get directions, hours and answers about reservations, takeout, parties and weddings on Cape Cod.",
+  keywords: [
+    "Laurino's Tavern directions",
+    "restaurant Brewster MA",
+    "Cape Cod restaurant hours",
+    "Brewster MA restaurant phone",
+    "restaurants near me Brewster",
+    "reservations Cape Cod",
+  ],
   alternates: {
     canonical: "/components/Contact",
   },
@@ -9,9 +17,9 @@ export const metadata = {
     type: "website",
     siteName: "Laurino's Tavern",
     url: "/components/Contact",
-    title: "Contact & Directions | Laurino's Tavern",
+    title: "Directions, Hours & Reservations | Laurino's Tavern",
     description:
-      "3668 Main Street, Brewster, MA 02631. Call (508) 896-6135 for reservations, parties and takeout.",
+      "3668 Main Street, Brewster, MA 02631. Call (508) 896-6135 for reservations, takeout, parties and weddings on Cape Cod.",
   },
 };
 

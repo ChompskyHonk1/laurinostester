@@ -6,6 +6,7 @@ export default async function sitemap() {
   const staticPaths = [
     { path: "", priority: 1.0, freq: "weekly" },
     { path: "/parties", priority: 0.9, freq: "weekly" },
+    { path: "/weddings", priority: 0.9, freq: "weekly" },
     { path: "/blog", priority: 0.8, freq: "weekly" },
     { path: "/components/menu", priority: 0.8, freq: "weekly" },
     { path: "/components/catering", priority: 0.7, freq: "monthly" },
