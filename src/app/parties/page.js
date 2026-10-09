@@ -282,14 +282,14 @@ function ClothChoices({ value, onChange }) {
 
 // One soda pitcher's worth: 32 oz, a flat price, and a gun flavor. Counts are
 // per flavor so a mixed order stays one compact picker, never menu line items.
-function PitcherPicker({ value, onQty, count, cents }) {
+function PitcherPicker({ value, onQty, count }) {
   return (
     <PitcherBox>
       <div className="pb-head">
-        <span>32 oz · {fmtCents(PITCHER_CENTS)} each · serves 2–3</span>
+        <span>32 oz pitchers · serves 2–3 each</span>
         {count > 0 && (
           <strong>
-            {count} · {fmtCents(cents)}
+            {count} pitcher{count === 1 ? "" : "s"}
           </strong>
         )}
       </div>
@@ -392,7 +392,6 @@ function DrinksPicker({
   sodaPitchers,
   onPitcherQty,
   pitcherCount,
-  pitcherCents,
 }) {
   const pkg = BAR_PACKAGES.find((p) => p.id === barPackage) || BAR_PACKAGES[0];
   const barPct = (barBudgetCents - BAR_MIN_CENTS) / (BAR_MAX_CENTS - BAR_MIN_CENTS);
@@ -462,18 +461,18 @@ function DrinksPicker({
         value={sodaPitchers}
         onQty={onPitcherQty}
         count={pitcherCount}
-        cents={pitcherCents}
       />
     </DrinksPanel>
   );
 }
 
-// In-house tablecloth options. "wood" means bare tables, no charge.
+// In-house tablecloth options. "wood" means bare tables; the coloured cloths are
+// included in every hosted party, so there is no price to show the guest.
 const TABLECLOTHS = [
-  { id: "wood", name: "No tablecloth", note: "Bare wood", swatch: "linear-gradient(135deg,#a9763f,#7c4f26)", priceCents: 0 },
-  { id: "black", name: "Black", note: "+$4", swatch: "#1b1b1d", priceCents: 400 },
-  { id: "white", name: "White", note: "+$4", swatch: "#efece4", priceCents: 400 },
-  { id: "navy", name: "Navy blue", note: "+$4", swatch: "#3A5666", priceCents: 400 },
+  { id: "wood", name: "No tablecloth", note: "Bare wood", swatch: "linear-gradient(135deg,#a9763f,#7c4f26)" },
+  { id: "black", name: "Black", note: "Included", swatch: "#1b1b1d" },
+  { id: "white", name: "White", note: "Included", swatch: "#efece4" },
+  { id: "navy", name: "Navy blue", note: "Included", swatch: "#3A5666" },
 ];
 
 // In-house bar service. A cash bar costs the host nothing; an open bar is a
@@ -759,20 +758,18 @@ export default function PartiesPage() {
     : selectedRooms.length
     ? selectedRooms.map((r) => r.name).join(" + ")
     : "—";
-  const itemSubtotalCents = q ? q.item_subtotal_cents : 0;
-  const itemTotalCents = q ? q.item_total_cents : 0;
   const coversEstimate = q ? Math.round(q.covers_estimate || 0) : 0;
   const withinLead = q ? q.within_lead : false;
   const overMaxGuests = q ? q.over_max_guests : false;
 
   const inHouse = roomIds.length > 0;
   const selectedCloth = TABLECLOTHS.find((t) => t.id === tablecloth) || TABLECLOTHS[0];
-  const clothCents = inHouse ? selectedCloth.priceCents : 0;
   const selectedBarPackage = BAR_PACKAGES.find((p) => p.id === barPackage) || BAR_PACKAGES[0];
-  const barCents = inHouse && barMode === "open" ? barBudgetCents : 0;
 
   const pitcherLines = SOFT_DRINKS.map((d) => ({ ...d, qty: sodaPitchers[d.id] || 0 }));
   const pitcherCount = pitcherLines.reduce((a, d) => a + d.qty, 0);
+  // Pitchers carry a real internal price so the manager sees the tab; the guest
+  // never sees a price anywhere on this page.
   const pitcherCents = inHouse ? pitcherCount * PITCHER_CENTS : 0;
   const pitcherColors = useMemo(() => {
     const out = [];
@@ -783,14 +780,9 @@ export default function PartiesPage() {
     return out;
   }, [sodaPitchers]);
 
-  const drinkCents = barCents + pitcherCents;
-  // Soft drinks and a hosted bar are food & drink spend, so they count toward
-  // the room minimum. Tablecloths are a rental and do not.
-  const spendCents = itemTotalCents + drinkCents;
-  const displayedTotalCents = spendCents + clothCents;
   const barSummary =
     barMode === "open"
-      ? `Open bar · ${selectedBarPackage.short} +${fmtCents(barBudgetCents)}`
+      ? `Open bar · ${selectedBarPackage.short}`
       : barMode === "cash"
       ? "Cash bar"
       : "None";
@@ -830,8 +822,9 @@ export default function PartiesPage() {
             id: item.id,
             name: item.name,
             qty,
-            isMarket: Boolean(item.is_market_price) || item.price_cents == null,
-            priceCents: item.price_cents ?? 0,
+            sizeLabel: item.size_label,
+            unitLabel: item.unit_label,
+            covers: item.covers,
             group: group.category,
           });
         }
@@ -906,9 +899,7 @@ export default function PartiesPage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const clothNote = inHouse
-        ? `Tablecloths: ${selectedCloth.name}${selectedCloth.priceCents ? ` (+${fmtCents(selectedCloth.priceCents)})` : ""}`
-        : "";
+      const clothNote = inHouse ? `Tablecloths: ${selectedCloth.name} (included)` : "";
       // All chosen rooms go in the note; room_id stays the primary (first)
       // room for the server model, and a manager confirms the combination.
       const roomNote = inHouse
@@ -1247,7 +1238,7 @@ export default function PartiesPage() {
                 </summary>
                 <TableclothPicker>
                   <h4>Tablecloths</h4>
-                  <p>Dress the tables for your party — $4 each, or leave them bare wood.</p>
+                  <p>Dress the tables for your party — tablecloths are included, in your choice of colour.</p>
                   <ClothChoices value={tablecloth} onChange={setTablecloth} />
                 </TableclothPicker>
                 <DrinksPicker
@@ -1260,7 +1251,6 @@ export default function PartiesPage() {
                   sodaPitchers={sodaPitchers}
                   onPitcherQty={setPitcherQty}
                   pitcherCount={pitcherCount}
-                  pitcherCents={pitcherCents}
                 />
               </ExtrasDisclosure>
             )}
@@ -1272,7 +1262,10 @@ export default function PartiesPage() {
               <StepNum>2</StepNum>
               <div>
                 <h2>Build a wish list</h2>
-                <p>Optional. Pick what sounds good — this is a wish list, not a final order.</p>
+                <p>
+                  Optional. Tap a category to open it and pick what sounds good — this is a
+                  wish list, not a final order. We&apos;ll price it with you when we confirm.
+                </p>
               </div>
             </StepHeader>
 
@@ -1284,14 +1277,19 @@ export default function PartiesPage() {
               </Notice>
             ) : (
               <MenuList>
-                {(config.menu || []).map((group) => {
+                {(config.menu || []).map((group, gi) => {
                   const visible = group.items.filter(
                     (item) => !HIDDEN_MENU_ITEMS.has(itemSlug(item.name))
                   );
                   const groupItems = group.category === "drinks" ? orderDrinks(visible) : visible;
+                  const selectedCount = groupItems.filter((item) => (items[item.id] || 0) > 0).length;
                   return (
-                    <MenuGroup key={group.category}>
-                      <h3>{group.category}</h3>
+                    <MenuCategory
+                      key={group.category}
+                      category={group.category}
+                      selectedCount={selectedCount}
+                      defaultOpen={gi === 0}
+                    >
                       {groupItems.map((item) => (
                         <MenuItem key={item.id}>
                           <div className="item-img">
@@ -1309,28 +1307,17 @@ export default function PartiesPage() {
                                 {item.name}
                                 {item.size_label ? <span className="item-size"> — {item.size_label}</span> : null}
                               </span>
-                              <span className="item-price">
-                                {item.is_market_price
-                                  ? item.price_note || "Market price"
-                                  : item.price_cents === 0
-                                  ? "No charge"
-                                  : fmtCents(item.price_cents)}
-                              </span>
                             </div>
                             <p className="item-desc">
                               {item.description}
-                              <span className="item-covers">
-                                {" "}
-                                · {item.unit_label} · serves ~{item.covers}
-                              </span>
+                              {item.unit_label ? (
+                                <span className="item-covers">
+                                  {" "}
+                                  · {item.unit_label}
+                                  {item.covers ? ` · serves ~${item.covers}` : ""}
+                                </span>
+                              ) : null}
                             </p>
-                            {item.is_market_price && (
-                              <p className="item-market">
-                                {item.price_note
-                                  ? `${item.price_note} — added to the wish list, not the total.`
-                                  : "Market price — added to the wish list, not the total."}
-                              </p>
-                            )}
                             <Stepper>
                               <StepBtn onClick={() => setQty(item.id, -1)} aria-label={`Remove ${item.name}`}>
                                 −
@@ -1343,7 +1330,7 @@ export default function PartiesPage() {
                           </div>
                         </MenuItem>
                       ))}
-                    </MenuGroup>
+                    </MenuCategory>
                   );
                 })}
               </MenuList>
@@ -1383,7 +1370,8 @@ export default function PartiesPage() {
                       <div className="or-name">
                         <span>{line.name}</span>
                         <span className="or-unit">
-                          {line.isMarket ? "Market price" : `${fmtCents(line.priceCents)} each`}
+                          {[line.sizeLabel, line.unitLabel].filter(Boolean).join(" · ")}
+                          {line.covers ? `${line.sizeLabel || line.unitLabel ? " · " : ""}serves ~${line.covers}` : ""}
                         </span>
                       </div>
                       <div className="or-qty">
@@ -1402,9 +1390,6 @@ export default function PartiesPage() {
                         >
                           +
                         </button>
-                      </div>
-                      <div className="or-price">
-                        {line.isMarket ? "Market" : fmtCents(line.priceCents * line.qty)}
                       </div>
                       <button
                         type="button"
@@ -1448,15 +1433,13 @@ export default function PartiesPage() {
                     <span>{guestsInt}</span>
                   </div>
                 )}
-                {inHouse && selectedCloth.priceCents > 0 && (
+                {inHouse && (
                   <div>
                     <span>Tablecloths</span>
-                    <span>
-                      {selectedCloth.name} +{fmtCents(selectedCloth.priceCents)}
-                    </span>
+                    <span>{selectedCloth.name}</span>
                   </div>
                 )}
-                {inHouse && barCents > 0 && (
+                {inHouse && (
                   <div>
                     <span>Bar</span>
                     <span>{barSummary}</span>
@@ -1465,26 +1448,15 @@ export default function PartiesPage() {
                 {inHouse && pitcherCount > 0 && (
                   <div>
                     <span>Soda pitchers</span>
-                    <span>
-                      {pitcherCount} × {fmtCents(PITCHER_CENTS)}
-                    </span>
+                    <span>{pitcherCount}</span>
                   </div>
                 )}
-                {q?.discount_amount_cents > 0 && (
-                  <div>
-                    <span>Party discount</span>
-                    <span>−{fmtCents(q.discount_amount_cents)}</span>
-                  </div>
-                )}
-                <div className="or-total">
-                  <span>Estimated total</span>
-                  <span>{fmtCents(displayedTotalCents)}</span>
-                </div>
               </div>
 
               <p className="or-note">
                 This is exactly what we&apos;ll see. Remove items here or add more above —
-                nothing is booked or charged until a manager confirms with you.
+                nothing is booked or charged until a manager confirms with you. We&apos;ll
+                give you the price when we call.
               </p>
             </OrderReview>
 
@@ -1587,23 +1559,17 @@ export default function PartiesPage() {
 
             <SummaryLine>
               <span>Menu wish list</span>
-              <strong>{itemSubtotalCents > 0 ? fmtCents(itemSubtotalCents) : "$0"}</strong>
+              <strong>
+                {selectedMenuLines.length > 0
+                  ? `${selectedMenuLines.length} item${selectedMenuLines.length === 1 ? "" : "s"}`
+                  : "None yet"}
+              </strong>
             </SummaryLine>
-            {q?.discount_amount_cents > 0 && (
-              <SummaryLine $muted>
-                <span>Party discount</span>
-                <strong>−{fmtCents(q.discount_amount_cents)}</strong>
-              </SummaryLine>
-            )}
 
             {inHouse && (
               <SummaryLine>
                 <span>Tablecloths</span>
-                <strong>
-                  {selectedCloth.priceCents > 0
-                    ? `${selectedCloth.name} +${fmtCents(selectedCloth.priceCents)}`
-                    : "None (wood)"}
-                </strong>
+                <strong>{selectedCloth.name}</strong>
               </SummaryLine>
             )}
 
@@ -1619,8 +1585,7 @@ export default function PartiesPage() {
                 <SummaryLine>
                   <span>Soda pitchers</span>
                   <strong>
-                    {pitcherCount} × {fmtCents(PITCHER_CENTS)} · serves ~
-                    {Math.round(pitcherCount * PITCHER_PEOPLE)}
+                    {pitcherCount} · serves ~{Math.round(pitcherCount * PITCHER_PEOPLE)}
                   </strong>
                 </SummaryLine>
                 <SummaryLine>
@@ -1637,10 +1602,10 @@ export default function PartiesPage() {
 
             <Divider />
 
-            <SummaryLine $big>
-              <span>Estimated total</span>
-              <strong>{fmtCents(displayedTotalCents)}</strong>
-            </SummaryLine>
+            <PriceNote>
+              <strong>Pricing comes with confirmation.</strong> Send your wish list and a
+              manager calls you back with a price — we apply party-size discounts automatically.
+            </PriceNote>
 
             {guestsInt > 0 && !overMaxGuests && (
               <CoversNote>
@@ -1696,11 +1661,11 @@ export default function PartiesPage() {
                         .map((d) => `${d.qty} ${d.name}`)
                         .join(", ")}
                       {" — "}
-                      <strong>{fmtCents(pitcherCents)}</strong>
+                      <strong>{pitcherCount} pitcher{pitcherCount === 1 ? "" : "s"}</strong>
                     </p>
                   ) : (
                     <p className="cp-pitcher-list">
-                      {fmtCents(PITCHER_CENTS)} each · serves 2–3 · add them in the room step.
+                      Serves 2–3 each · add them in the room step.
                     </p>
                   )}
                 </div>
@@ -1756,8 +1721,12 @@ export default function PartiesPage() {
       {/* Mobile bottom nav */}
       <MobileBar>
         <div className="mb-total">
-          {step >= 1 && <span className="mb-label">Est. total</span>}
-          <span className="mb-amount">{step >= 1 ? fmtCents(displayedTotalCents) : `${guestsInt || "—"} guests`}</span>
+          {step >= 1 && <span className="mb-label">Wish list</span>}
+          <span className="mb-amount">
+            {step >= 1
+              ? `${selectedMenuLines.length} item${selectedMenuLines.length === 1 ? "" : "s"}`
+              : `${guestsInt || "—"} guests`}
+          </span>
         </div>
         <div className="mb-actions">
           {step > 0 && (
@@ -1780,9 +1749,33 @@ export default function PartiesPage() {
 
 /* ------------------------------------------------------------- constants */
 
-const STEPS = ["Details", "Menu", "Send"];
+const STEPS = ["Details", "Wish list", "Send"];
 
 /* ------------------------------------------------------------ subcomponents */
+
+// One menu category as a collapsible drawer. Every category header is visible at
+// once so a guest can scan the whole menu and open only what they want; the
+// badge shows how many items they've already put on the wish list.
+function MenuCategory({ category, selectedCount, defaultOpen, children }) {
+  const [open, setOpen] = useState(Boolean(defaultOpen));
+  return (
+    <MenuGroup open={open}>
+      <summary
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen((o) => !o);
+        }}
+      >
+        <span className="mg-name">{category.charAt(0).toUpperCase() + category.slice(1)}</span>
+        {selectedCount > 0 && (
+          <span className="mg-count">{selectedCount} selected</span>
+        )}
+        <span className="mg-chevron" aria-hidden="true" />
+      </summary>
+      <div className="mg-body">{children}</div>
+    </MenuGroup>
+  );
+}
 
 function Confirmation({ reference, date, timeLabel, guests, roomName, phone }) {
   return (
@@ -1803,8 +1796,8 @@ function Confirmation({ reference, date, timeLabel, guests, roomName, phone }) {
           {guests ? `, ${guests} guest${guests === 1 ? "" : "s"}` : ""}.
         </p>
         <div className="blunt">
-          <strong>This isn&apos;t booked yet.</strong> One of us will call you within a day to go
-          through the details and confirm.
+          <strong>This isn&apos;t booked yet.</strong> One of us will call you within a day to
+          go through the details, give you the price and confirm.
         </div>
         <p className="phone-line">
           Questions? <a href="tel:+15088966135">{phone || PHONE}</a>
@@ -2244,12 +2237,8 @@ const OrderReview = styled.section`
     text-align: center;
     font-weight: 700;
   }
-  .or-price {
-    margin-left: auto;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.primaryDark};
-  }
   .or-del {
+    margin-left: auto;
     background: none;
     border: none;
     min-height: 0;
@@ -2278,22 +2267,17 @@ const OrderReview = styled.section`
   .or-summary > div > span:first-child {
     color: ${({ theme }) => theme.colors.mutedText};
   }
-  .or-summary .or-total {
-    border-top: 2px solid ${({ theme }) => theme.colors.border};
-    margin-top: 0.4rem;
-    padding-top: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: ${({ theme }) => theme.colors.primaryDark};
-  }
-  .or-summary .or-total > span:first-child {
-    color: inherit;
-  }
   .or-note {
     margin: 0.7rem 0 0;
     font-size: 0.9rem;
     line-height: 1.5;
     color: ${({ theme }) => theme.colors.mutedText};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    .or-name {
+      flex: 1 1 100%;
+    }
   }
 `;
 
@@ -2748,17 +2732,86 @@ const PitcherBox = styled.div`
 const MenuList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 0.75rem;
 `;
 
-const MenuGroup = styled.div`
-  h3 {
+// Each category is a native <details> drawer with a controlled open state. The
+// header row stays visible so the whole menu is scannable at a glance.
+const MenuGroup = styled.details`
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  background: ${({ theme }) => theme.colors.cardBackground};
+  overflow: hidden;
+
+  > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.05rem 1.25rem;
+    user-select: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid ${({ theme }) => theme.colors.tertiaryDark};
+      outline-offset: -3px;
+    }
+  }
+
+  .mg-name {
+    flex: 1;
     font-family: "Aloja", serif;
     font-size: 1.4rem;
     color: ${({ theme }) => theme.colors.primaryDark};
-    margin: 0 0 0.75rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+    text-transform: capitalize;
+    transition: color 0.15s ease;
+  }
+
+  > summary:hover .mg-name {
+    color: ${({ theme }) => theme.colors.tertiaryDark};
+  }
+
+  .mg-count {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+    background: ${({ theme }) => theme.colors.tertiaryDark};
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .mg-chevron {
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    margin: 0 0.35rem 0.2rem 0.15rem;
+    border-right: 2px solid ${({ theme }) => theme.colors.mutedText};
+    border-bottom: 2px solid ${({ theme }) => theme.colors.mutedText};
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+
+  &[open] .mg-chevron {
+    transform: rotate(225deg);
+    margin-bottom: 0;
+    margin-top: 0.2rem;
+  }
+
+  .mg-body {
+    padding: 0.25rem 1.25rem 0.75rem;
+    border-top: 1px solid ${({ theme }) => theme.colors.border};
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+      padding: 0.25rem 0.9rem 0.5rem;
+    }
   }
 `;
 
@@ -2808,13 +2861,6 @@ const MenuItem = styled.div`
         color: ${({ theme }) => theme.colors.mutedText};
       }
     }
-
-    .item-price {
-      font-weight: 700;
-      font-size: 1.08rem;
-      color: ${({ theme }) => theme.colors.primaryDark};
-      white-space: nowrap;
-    }
   }
 
   .item-desc {
@@ -2826,13 +2872,6 @@ const MenuItem = styled.div`
       color: ${({ theme }) => theme.colors.tertiaryDark};
       font-weight: 600;
     }
-  }
-
-  .item-market {
-    margin: 0 0 0.5rem;
-    font-size: 0.92rem;
-    font-style: italic;
-    color: ${({ theme }) => theme.colors.highlight};
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
@@ -3006,6 +3045,22 @@ const CoversNote = styled.div`
   font-size: 0.98rem;
   line-height: 1.5;
   color: ${({ theme }) => theme.colors.text};
+`;
+
+// Replaces the old "estimated total": we confirm the price on the phone, so the
+// rail says so plainly instead of showing a number the guest didn't ask for.
+const PriceNote = styled.div`
+  padding: 0.9rem 1rem;
+  background: #fbf3e4;
+  border: 1px solid #ead7b8;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: ${({ theme }) => theme.colors.text};
+
+  strong {
+    color: ${({ theme }) => theme.colors.primaryDark};
+  }
 `;
 
 const MobileBar = styled.div`
