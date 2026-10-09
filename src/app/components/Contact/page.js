@@ -170,7 +170,7 @@ const PageHeader = styled.div`
   }
 
   h1 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2.7rem;
     margin-bottom: 1rem;
   }
@@ -241,7 +241,7 @@ const ContactCard = styled.div`
     text-align: left;
 
     h2 {
-      font-family: 'Aloja', sans-serif;
+      font-family: 'Aloja', 'Aloja Fallback', sans-serif;
       font-size: 1.8rem;
       margin-bottom: 1rem;
       color: ${({ theme }) => theme.colors.primaryDark};
@@ -326,7 +326,7 @@ const InfoCard = styled.div`
 
   .text {
     h3 {
-      font-family: 'Aloja', sans-serif;
+      font-family: 'Aloja', 'Aloja Fallback', sans-serif;
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
       color: ${({ theme }) => theme.colors.primaryDark};
@@ -371,7 +371,7 @@ const MapSection = styled.section`
   margin: 0 auto 4rem;
 
   h2 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2rem;
     margin-bottom: 2rem;
     color: ${({ theme }) => theme.colors.primaryDark};

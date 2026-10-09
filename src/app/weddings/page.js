@@ -110,7 +110,7 @@ const Hero = styled.section`
     margin-bottom: 1rem;
   }
   h1 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: clamp(2rem, 5vw, 3.4rem);
     line-height: 1.1;
     margin-bottom: 1.1rem;
@@ -162,7 +162,7 @@ const Section = styled.section`
   padding: 4rem 1.5rem;
 
   h2 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     color: ${({ theme }) => theme.colors.tertiaryDark};
     font-size: clamp(1.6rem, 3.5vw, 2.3rem);
     margin-bottom: 1rem;
@@ -208,7 +208,7 @@ const Grid = styled.div`
     box-shadow: ${({ theme }) => theme.shadows.light};
 
     h3 {
-      font-family: "Aloja", serif;
+      font-family: "Aloja", "Aloja Fallback", serif;
       color: ${({ theme }) => theme.colors.tertiaryDark};
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
@@ -355,7 +355,7 @@ const CtaBand = styled.section`
   padding: 4rem 1.5rem;
 
   h2 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: clamp(1.6rem, 3.5vw, 2.2rem);
     margin-bottom: 1rem;
   }

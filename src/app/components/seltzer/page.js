@@ -84,7 +84,7 @@ const PageHeader = styled.div`
   }
 
   h1 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2.7rem;
     font-weight: 400;
     margin-bottom: 1rem;
@@ -92,7 +92,7 @@ const PageHeader = styled.div`
   }
 
   h2 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 1.8rem;
     font-weight: 300;
     margin-bottom: 1rem;

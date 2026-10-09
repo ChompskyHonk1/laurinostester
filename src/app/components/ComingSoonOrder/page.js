@@ -58,7 +58,7 @@ const ContentCard = styled.div`
 `;
 
 const Title = styled.h1`
-  font-family: 'Aloja', serif;
+  font-family: 'Aloja', 'Aloja Fallback', serif;
   font-size: 2.5rem;
   color: ${({ theme }) => theme.colors.primaryDark};
   margin-bottom: 1.5rem;

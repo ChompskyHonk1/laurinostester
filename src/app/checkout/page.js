@@ -31,7 +31,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 `;
 
  const CheckoutHeading = styled.h1`
-  font-family: 'Aloja', serif;
+  font-family: 'Aloja', 'Aloja Fallback', serif;
   font-size: 2.5rem;
   color: ${({ theme }) => theme.colors.primaryDark};
   margin-bottom: 2rem;
@@ -46,7 +46,7 @@ const FormSection = styled.div`
   margin-bottom: 2rem;
   
   h2 {
-    font-family: 'Aloja', serif;
+    font-family: 'Aloja', 'Aloja Fallback', serif;
     font-size: 1.8rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     margin-bottom: 1.5rem;
@@ -64,7 +64,7 @@ const FormSection = styled.div`
   margin-bottom: 2rem;
   
   h2 {
-    font-family: 'Aloja', serif;
+    font-family: 'Aloja', 'Aloja Fallback', serif;
     font-size: 1.8rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     margin-bottom: 1.5rem;

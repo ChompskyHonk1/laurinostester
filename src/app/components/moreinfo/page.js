@@ -222,7 +222,7 @@ const HeaderWrapper = styled.div`
   margin-bottom: 3rem;
 
   h1 {
-    font-family: "Aloja", sans-serif;
+    font-family: "Aloja", "Aloja Fallback", sans-serif;
     font-size: 2.5rem;
     margin-bottom: 1rem;
   }
@@ -249,7 +249,7 @@ const FormContainer = styled.form`
   text-align: left;
 
   h2 {
-    font-family: "Aloja", sans-serif;
+    font-family: "Aloja", "Aloja Fallback", sans-serif;
     font-size: 2rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     margin-bottom: 1rem;

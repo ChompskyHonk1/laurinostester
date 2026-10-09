@@ -17,7 +17,7 @@ const EventsCarouselContainer = styled.section`
   h2 {
     color: ${({ theme }) => theme.colors.text};
     margin-bottom: 2rem;
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2.5rem;
     text-align: center;
   }
@@ -116,7 +116,7 @@ const EventsCarouselContainer = styled.section`
       color: ${({ theme }) => theme.colors.text};
       margin-bottom: 0.75rem;
       line-height: 1.3;
-      font-family: 'Aloja';
+      font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     }
 
     .event-description {

@@ -1830,7 +1830,7 @@ const Hero = styled.section`
   }
 
   h1 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 3rem;
     font-weight: 400;
     margin: 0 0 1rem;
@@ -1905,7 +1905,7 @@ const ClosedPanel = styled.div`
   text-align: center;
 
   h2 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 2rem;
     color: ${({ theme }) => theme.colors.primaryDark};
   }
@@ -2015,7 +2015,7 @@ const StepHeader = styled.div`
   margin-bottom: 1.5rem;
 
   h2 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 1.75rem;
     margin: 0 0 0.25rem;
     color: ${({ theme }) => theme.colors.primaryDark};
@@ -2060,7 +2060,7 @@ const SubSection = styled.div`
   border-top: 1px solid ${({ theme }) => theme.colors.border};
 
   h3 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 1.45rem;
     font-weight: 400;
     margin: 0 0 0.35rem;
@@ -2458,7 +2458,7 @@ const TableclothPicker = styled.div`
   border-top: 1px dashed ${({ theme }) => theme.colors.border};
 
   h4 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 1.25rem;
     margin: 0 0 0.25rem;
     color: ${({ theme }) => theme.colors.primaryDark};
@@ -2526,7 +2526,7 @@ const DrinksPanel = styled.div`
   border-top: 1px dashed ${({ theme }) => theme.colors.border};
 
   h4 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 1.15rem;
     margin: 0 0 0.25rem;
     color: ${({ theme }) => theme.colors.primaryDark};
@@ -2764,7 +2764,7 @@ const MenuGroup = styled.details`
 
   .mg-name {
     flex: 1;
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 1.4rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     text-transform: capitalize;
@@ -2997,7 +2997,7 @@ const Summary = styled.div`
   box-shadow: ${({ theme }) => theme.shadows.medium};
 
   h3 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 1.4rem;
     margin: 0 0 1rem;
     color: ${({ theme }) => theme.colors.primaryDark};
@@ -3157,7 +3157,7 @@ const ChaferPanel = styled.div`
     margin-bottom: 0.85rem;
 
     h3 {
-      font-family: "Aloja", serif;
+      font-family: "Aloja", "Aloja Fallback", serif;
       font-size: 1.2rem;
       margin: 0;
       color: ${({ theme }) => theme.colors.primaryDark};
@@ -3213,7 +3213,7 @@ const ChaferPanel = styled.div`
     border-top: 1px dashed ${({ theme }) => theme.colors.border};
 
     h4 {
-      font-family: "Aloja", serif;
+      font-family: "Aloja", "Aloja Fallback", serif;
       font-size: 1rem;
       margin: 0 0 0.6rem;
       color: ${({ theme }) => theme.colors.primaryDark};
@@ -3274,7 +3274,7 @@ const ChaferOverlay = styled.div`
     gap: 1rem;
 
     h3 {
-      font-family: "Aloja", serif;
+      font-family: "Aloja", "Aloja Fallback", serif;
       font-size: 1.2rem;
       font-weight: 400;
       margin: 0;
@@ -3369,7 +3369,7 @@ const ConfirmationCard = styled.div`
   box-shadow: ${({ theme }) => theme.shadows.medium};
 
   h2 {
-    font-family: "Aloja", serif;
+    font-family: "Aloja", "Aloja Fallback", serif;
     font-size: 1.7rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     margin: 0.75rem 0 1rem;

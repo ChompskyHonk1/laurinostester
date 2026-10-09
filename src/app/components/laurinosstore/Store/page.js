@@ -531,7 +531,7 @@ const MobileCartContainer = styled.div`
       margin: 0;
       font-size: 1.5rem;
       font-weight: 600;
-      font-family: "Aloja", serif;
+      font-family: "Aloja", "Aloja Fallback", serif;
     }
     
     .close-button {
@@ -823,7 +823,7 @@ const Sidebar = styled.div`
 `;
 
 const BrandLogo = styled.div`
-  font-family: "Aloja", serif;
+  font-family: "Aloja", "Aloja Fallback", serif;
   font-size: 2.2rem;
   font-weight: 700;
   margin-bottom: 2.5rem;
@@ -890,7 +890,7 @@ const StoreHeader = styled.div`
 
 /* Category title at the top */
 const CategoryHeader = styled.h2`
-  font-family: "Aloja", serif;
+  font-family: "Aloja", "Aloja Fallback", serif;
   font-size: 2.5rem;
   position: relative;
   display: inline-block;
@@ -1221,7 +1221,7 @@ const Dot = styled.button`
 `;
 
 const ModalTitle = styled.h3`
-  font-family: "Aloja", serif;
+  font-family: "Aloja", "Aloja Fallback", serif;
   font-size: 2.2rem;
   margin: 1rem 0 0.5rem;
   color: ${({ theme }) => theme.colors.primaryDark};

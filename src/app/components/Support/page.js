@@ -284,7 +284,7 @@ const PageHeader = styled.div`
   color: ${({ theme }) => theme.colors.primaryLight};
 
   h1 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2.5rem;
     margin-bottom: 1rem;
   }
@@ -313,7 +313,7 @@ const SupportInfo = styled.div`
   flex: 1;
   
   h2 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 1.8rem;
     margin-bottom: 1rem;
     color: ${({ theme }) => theme.colors.tertiaryDark};
@@ -369,7 +369,7 @@ const FormContainer = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.tertiaryDark};
   
   h2 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
     color: ${({ theme }) => theme.colors.tertiaryDark};
@@ -493,7 +493,7 @@ const FAQSection = styled.section`
   margin: 0;
   
   h2 {
-    font-family: 'Aloja', sans-serif;
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2rem;
     text-align: center;
     margin-bottom: 2.5rem;

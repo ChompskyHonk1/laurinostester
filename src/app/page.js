@@ -63,7 +63,7 @@ const HeroSection = styled.section`
     font-weight: 700;
     margin-bottom: 1rem;
     letter-spacing: 1px;
-       font-family: 'Aloja';
+       font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     line-height: 1.2;
   }
 
@@ -216,7 +216,7 @@ const AboutSection = styled.section`
 
   h2 {
     
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
   }
   .about-image {
     flex: 1;
@@ -263,7 +263,7 @@ const CarouselSection = styled.section`
   h2 {
     color: #2f2418;
     margin-bottom: 2rem;
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
 }
   .subtext  {
     color: #2f2418;
@@ -478,7 +478,7 @@ const CateringSection = styled.section`
   h2 {
     color: ${({ theme }) => theme.colors.primaryDark};
     margin-bottom: 0.5rem;
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
   }
 
   .subheading {
@@ -582,7 +582,7 @@ const WeddingsSection = styled.section`
   }
 
   h2 {
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2.2rem;
     margin-bottom: 1rem;
   }
@@ -660,7 +660,7 @@ const Section = styled.section`
   h2 {
     color: ${({ theme }) => theme.colors?.primaryDark || '#333'};
     margin-bottom: 1rem;
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
   }
 
   p {
@@ -788,7 +788,7 @@ const CTAButton = styled.button`
   h2 {
     color: ${({ theme }) => theme.colors.primaryDark};
     margin-bottom: 1rem;
-       font-family: 'Aloja';
+       font-family: 'Aloja', 'Aloja Fallback', sans-serif;
   }
 
 
@@ -884,7 +884,7 @@ const EasterEggContainer = styled.div`
     h1 {
       font-size: 4rem;
       margin-bottom: 1rem;
-      font-family: 'Aloja';
+      font-family: 'Aloja', 'Aloja Fallback', sans-serif;
       color: #FFD700;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }

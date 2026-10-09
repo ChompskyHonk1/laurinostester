@@ -58,7 +58,7 @@ export const CartModal = styled.div`
     margin-bottom: 2rem;
     
     h2 {
-      font-family: 'Aloja', serif;
+      font-family: 'Aloja', 'Aloja Fallback', serif;
       font-size: 1.8rem;
       margin: 0;
     }

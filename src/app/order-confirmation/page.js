@@ -33,7 +33,7 @@ const SuccessMessage = styled.div`
   text-align: center;
   
   h1 {
-    font-family: 'Aloja', serif;
+    font-family: 'Aloja', 'Aloja Fallback', serif;
     font-size: 2.5rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     margin-bottom: 1rem;
@@ -60,7 +60,7 @@ const OrderDetails = styled.div`
   margin-bottom: 2rem;
   
   h2 {
-    font-family: 'Aloja', serif;
+    font-family: 'Aloja', 'Aloja Fallback', serif;
     font-size: 1.8rem;
     color: ${({ theme }) => theme.colors.primaryDark};
     margin-bottom: 1.5rem;
@@ -87,7 +87,7 @@ const OrderDetails = styled.div`
     border-top: 1px solid ${({ theme }) => theme.colors.tertiaryDark};
     
     h3 {
-      font-family: 'Aloja', serif;
+      font-family: 'Aloja', 'Aloja Fallback', serif;
       font-size: 1.3rem;
       color: ${({ theme }) => theme.colors.primaryDark};
       margin-bottom: 0.5rem;

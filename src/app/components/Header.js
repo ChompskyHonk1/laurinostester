@@ -61,7 +61,7 @@ const HeaderContainer = styled.header`
 
   .logo {
     font-size: 1.5rem;
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -330,7 +330,7 @@ const HeaderContainer = styled.header`
     position: absolute;
     top: 1.5rem;
     left: 2rem;
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 1.2rem;
     color: white;
     font-weight: 400;

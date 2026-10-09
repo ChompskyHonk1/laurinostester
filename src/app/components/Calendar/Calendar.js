@@ -9,6 +9,7 @@ const CalendarContainer = styled.section`
   background: ${({ theme }) => theme.colors.background};
   padding: 4rem 2rem;
   min-height: 80vh;
+  position: relative; /* anchor the absolutely-positioned easter-egg button */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -18,7 +19,7 @@ const CalendarContainer = styled.section`
   h2 {
     color: ${({ theme }) => theme.colors.text};
     margin-bottom: 2rem;
-    font-family: 'Aloja';
+    font-family: 'Aloja', 'Aloja Fallback', sans-serif;
     font-size: 2.5rem;
     text-align: center;
   }

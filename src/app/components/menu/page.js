@@ -805,7 +805,7 @@ const MenuHeader = styled.div`
   }
 
   h1 {
-    font-family: 'Aloja', serif;
+    font-family: 'Aloja', 'Aloja Fallback', serif;
     font-size: 2.7rem;
     font-weight: 400;
     margin-bottom: 1rem;
@@ -813,7 +813,7 @@ const MenuHeader = styled.div`
   }
 
   h2 {
-    font-family: 'Aloja', serif;
+    font-family: 'Aloja', 'Aloja Fallback', serif;
     font-size: 1.5rem;
     font-weight: 300;
     margin-bottom: 1rem;

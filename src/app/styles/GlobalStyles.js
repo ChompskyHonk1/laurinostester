@@ -2,14 +2,42 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
-  /* Declare your custom font first. 'font-display: swap' keeps text visible
-     immediately and swaps the display face in, instead of blocking paint on a
-     ~72 KB font download (a common CLS/LCP penalty). */
+  /* Declare your custom font first. 'font-display: optional' means the browser
+     uses the (metric-matched) fallback if the font is not ready almost
+     immediately, and never swaps afterwards — so the display face can no longer
+     reflow headings and cause CLS. The preload below still fetches it early, so
+     it is used whenever it wins the race and always on repeat visits. */
   @font-face {
     font-family: 'Aloja';
     src: url('/Aloja%20Extended.ttf') format('truetype');
     font-style: normal;
     font-weight: 400;
+    font-display: optional;
+  }
+
+  /* Metric-matched fallback for Aloja. Aloja is wider (x1.124) and has a taller
+     default line box (1.24em vs 1.15em) than the system sans, so swapping it in
+     after first paint reflows every heading that uses it — the main source of
+     CLS on the homepage. This face scales the system font to Aloja's metrics so
+     the swap changes nothing about layout. Pair it everywhere Aloja is used:
+     font-family: 'Aloja', 'Aloja Fallback', sans-serif. */
+  @font-face {
+    font-family: 'Aloja Fallback';
+    /* Ordered most- to least-metric-compatible with Arial across platforms.
+       Linux/headless Chrome (and Lighthouse) ships Liberation/DejaVu/Nimbus
+       rather than Arial, so those must be listed or the face errors out and the
+       size-adjust never applies. */
+    src: local('Arial'), local('Helvetica Neue'), local('ArialMT'),
+         local('Roboto'), local('Liberation Sans'), local('Nimbus Sans'),
+         local('DejaVu Sans');
+    font-style: normal;
+    font-weight: 400;
+    size-adjust: 112.36%;
+    /* size-adjust scales these overrides too, so target sum is
+       1.24em / 1.1236 = 110.34% to match Aloja's default line box. */
+    ascent-override: 88%;
+    descent-override: 22.34%;
+    line-gap-override: 0%;
     font-display: swap;
   }
  
