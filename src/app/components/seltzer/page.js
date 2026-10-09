@@ -16,7 +16,7 @@ export default function ComingSoonPage() {
         <div className="image-wrapper">
           {/* Replace with your own image path */}
           <img
-            src="/canimage3.svg"
+            src="/canimage3.webp"
             alt="Reef Runner Seltzer"
           />
         </div>

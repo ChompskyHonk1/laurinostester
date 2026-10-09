@@ -1249,7 +1249,7 @@ export default function HomePage() {
             {/* Right: SVG or image container */}
             <div className="image-container">
               <Image
-                src="/Catering.svg"
+                src="/Catering.webp"
                 alt="Laurino's Tavern mobile bar and catering service"
                 width={900}
                 height={600}
@@ -1274,7 +1274,7 @@ export default function HomePage() {
             <div className="merch-item">
             <Link href="../components/laurinosstore/Store?category=Gear">
               <Image
-                src="/Gear.svg"
+                src="/Gear.webp"
                 alt="Laurino's Tavern branded gear"
                 width={275}
                 height={275}
@@ -1294,7 +1294,7 @@ export default function HomePage() {
             <div className="merch-item">
             <Link href="../components/laurinosstore/Store?category=T-Shirts">
               <Image
-                src="/Tshirts.svg"
+                src="/Tshirts.webp"
                 alt="Laurino's Tavern t-shirts"
                 width={275}
                 height={275}
@@ -1312,7 +1312,7 @@ export default function HomePage() {
             <div className="merch-item">
             <Link href="../components/laurinosstore/Store?category=Sweatshirts">
               <Image
-                src="/Hoodiefront.svg"
+                src="/Hoodiefront.webp"
                 alt="Laurino's Tavern sweatshirts"
                 width={275}
                 height={275}
@@ -1330,7 +1330,7 @@ export default function HomePage() {
             <div className="merch-item">
             <Link href="../components/laurinosstore/Store?category=Hats">
               <Image
-                src="/Hats.svg"
+                src="/Hats.webp"
                 alt="Laurino's Tavern hats"
                 width={275}
                 height={275}

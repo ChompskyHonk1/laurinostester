@@ -12,7 +12,15 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
 
   compiler: {
-    styledComponents: true, // Enables styled-components support via SWC
+    // Minify the server-rendered styled-components CSS (Lighthouse flags the
+    // un-minified inline <style> block). `pure` helps SWC tree-shake unused
+    // template helpers out of the client bundle.
+    styledComponents: {
+      ssr: true,
+      displayName: false,
+      minify: true,
+      pure: true,
+    },
   },
   eslint: {
     ignoreDuringBuilds: true, // Disables ESLint checks during builds

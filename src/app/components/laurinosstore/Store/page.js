@@ -19,7 +19,7 @@ const sampleProducts = [
     id: 1,
     category: "Gear",
     name: "Beer Koozie",
-    images: ["/Canfront.svg", "/Canback.svg"],
+    images: ["/Canfront.webp", "/Canback.webp"],
     price: "$10",
     description: "High-quality koozie from Laurino's. Perfect for everyday use ."
   },
@@ -27,7 +27,7 @@ const sampleProducts = [
     id: 2,
     category: "Gear",
     name: "Premium Bag",
-    images: ["/Bag.svg", "/Bagback3.svg"],
+    images: ["/Bag.webp", "/Bagback3.webp"],
     price: "$20",
     description: "Premium beach tote."
   },
@@ -36,7 +36,7 @@ const sampleProducts = [
     id: 3,
     category: "T-Shirts",
     name: "Classic Tee",
-    images: ["/Beigeshirtfront.svg", "/Shirtback.svg"],
+    images: ["/Beigeshirtfront.webp", "/Shirtback.webp"],
     price: "$25",
     description: "Comfortable cotton tee for everyday casual wear.",
     sizes: ["Small", "Medium", "Large", "XL"]
@@ -45,7 +45,7 @@ const sampleProducts = [
     id: 4,
     category: "T-Shirts",
     name: "Vintage Tee",
-    images: ["/Shirt2front.svg", "/Shirt2back.svg"],
+    images: ["/Shirt2front.webp", "/Shirt2back.webp"],
     price: "$28",
     description: "Retro style with a soft, worn-in feel.",
     sizes: ["Small", "Medium", "Large", "XL"]
@@ -55,7 +55,7 @@ const sampleProducts = [
     id: 5,
     category: "Sweatshirts",
     name: "Cozy Laurinos Sweatshirt",
-    images: ["/Sweatshirtfront.svg", "/Sweatshirtback.svg"],
+    images: ["/Sweatshirtfront.webp", "/Sweatshirtback.webp"],
     price: "$35",
     description: "Premium Laurinos sweatshirt.",
     sizes: ["Small", "Medium", "Large", "XL"]
@@ -64,7 +64,7 @@ const sampleProducts = [
     id: 6,
     category: "Sweatshirts",
     name: "Modern Laurinos Hoodie",
-    images: ["/Hoodiefront.svg", "/Hoodieback.svg"],
+    images: ["/Hoodiefront.webp", "/Hoodieback.webp"],
     price: "$50",
     description: "Classic hoodie maroon washed.",
     sizes: ["Small", "Medium", "Large", "XL"]
@@ -74,7 +74,7 @@ const sampleProducts = [
     id: 7,
     category: "Hats",
     name: "Laurinos Cap",
-    images: ["/Hatnffront.svg", "/Hatnfback.svg"],
+    images: ["/Hatnffront.webp", "/Hatnfback.webp"],
     price: "$28",
     description: "Laurinos x Northface limited time hat."
   },
@@ -82,7 +82,7 @@ const sampleProducts = [
     id: 8,
     category: "Hats",
     name: "Cap",
-    images: ["/Hatwhite.svg", "/Whiteback.svg"],
+    images: ["/Hatwhite.webp", "/Whiteback.webp"],
     price: "$23",
     description: "Gone fishing Laurinos trucker hat."
   },
@@ -90,7 +90,7 @@ const sampleProducts = [
     id: 9,
     category: "Hats",
     name: "Bucket",
-    images: ["/Bucketfront.svg", "/Bucketback.svg"],
+    images: ["/Bucketfront.webp", "/Bucketback.webp"],
     price: "$20",
     description: "Mega ultra sigma Laurinos bucket hat."
   },
